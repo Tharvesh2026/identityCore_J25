@@ -1,0 +1,31 @@
+# ─── App ──────────────────
+spring.application.name=identityCore
+server.port=8080
+
+# ─── Database profile ──────────────────
+spring.profiles.active=postgres
+
+# ─── SQL Init (seed data) ──────────────────
+spring.sql.init.mode=embedded
+spring.jpa.defer-datasource-initialization=true
+
+# ─── Session ──────────────────
+server.servlet.session.timeout=600s
+
+# ─── Thymeleaf ──────────────────
+spring.thymeleaf.cache=false
+
+# ─── Logging ──────────────────
+logging.level.root=WARN
+logging.level.dev.tharbytes=INFO
+logging.level.org.springframework.security=WARN
+logging.file.name=logs/application.log
+
+# ─── OAuth2 ──────────────────
+
+spring.security.oauth2.client.registration.google.client-id=
+spring.security.oauth2.client.registration.google.client-secret=
+
+spring.security.oauth2.client.registration.github.client-id=
+spring.security.oauth2.client.registration.github.client-secret=
+spring.security.oauth2.client.registration.github.scope=read:user,user:email
