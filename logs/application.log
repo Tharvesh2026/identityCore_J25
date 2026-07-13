@@ -12698,3 +12698,30 @@ org.springframework.expression.spel.SpelEvaluationException: EL1005E: Type canno
 2026-07-13T13:09:23.759+05:30  WARN 17324 --- [identityCore] [http-nio-8080-exec-9] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource .well-known/appspecific/com.chrome.devtools.json.]
 2026-07-13T13:09:23.759+05:30  WARN 17324 --- [identityCore] [http-nio-8080-exec-5] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource favicon.ico.]
 2026-07-13T14:06:09.171+05:30  WARN 17324 --- [identityCore] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=53m49s332ms908µs600ns).
+2026-07-13T14:33:35.708+05:30  INFO 11028 --- [identityCore] [restartedMain] d.t.i.IdentityCoreApplication            : Starting IdentityCoreApplication using Java 25.0.3 with PID 11028 (D:\iCore-Projects\identityCore_J25\target\classes started by DS in D:\iCore-Projects\identityCore_J25)
+2026-07-13T14:33:35.710+05:30  INFO 11028 --- [identityCore] [restartedMain] d.t.i.IdentityCoreApplication            : The following 1 profile is active: "postgres"
+2026-07-13T14:33:38.505+05:30  WARN 11028 --- [identityCore] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-07-13T14:33:40.839+05:30  WARN 11028 --- [identityCore] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-13T14:33:40.875+05:30  WARN 11028 --- [identityCore] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-07-13T14:33:41.437+05:30  WARN 11028 --- [identityCore] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : Unable to start LiveReload server
+2026-07-13T14:33:41.465+05:30  WARN 11028 --- [identityCore] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-07-13T14:33:41.772+05:30 ERROR 11028 --- [identityCore] [restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+2026-07-13T14:46:25.241+05:30  INFO 16684 --- [identityCore] [main] d.t.i.IdentityCoreApplicationTests       : Starting IdentityCoreApplicationTests using Java 25.0.3 with PID 16684 (started by DS in D:\iCore-Projects\identityCore_J25)
+2026-07-13T14:46:25.243+05:30  INFO 16684 --- [identityCore] [main] d.t.i.IdentityCoreApplicationTests       : The following 1 profile is active: "postgres"
+2026-07-13T14:46:28.837+05:30  WARN 16684 --- [identityCore] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-07-13T14:46:31.279+05:30  WARN 16684 --- [identityCore] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-13T14:46:31.328+05:30  WARN 16684 --- [identityCore] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2026-07-13T14:46:32.079+05:30  INFO 16684 --- [identityCore] [main] d.t.i.IdentityCoreApplicationTests       : Started IdentityCoreApplicationTests in 7.088 seconds (process running for 8.095)

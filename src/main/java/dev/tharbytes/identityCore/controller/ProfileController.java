@@ -46,6 +46,7 @@ public class ProfileController {
             RedirectAttributes ra) {
 
         UserEntity user = authHelper.requireCurrentUser();
+        log.info("Profile action [{}] requested by user [{}].", action, user.getId());
 
         if ("updateProfile".equals(action)) {
             return handleUpdateProfile(user, name, username, email, ra);
@@ -53,6 +54,7 @@ public class ProfileController {
             return handleChangePassword(user, currentPassword, newPassword, confirmPassword, ra);
         }
 
+        log.warn("Unknown profile action [{}] requested by user [{}].", action, user.getId());
         ra.addFlashAttribute("error", "Unknown action");
         return "redirect:/profile";
     }
@@ -63,16 +65,19 @@ public class ProfileController {
         String sanitizedEmail    = email;
 
         if (sanitizedName.isBlank() || sanitizedUsername.isBlank() || sanitizedEmail.isBlank()) {
+            log.warn("Profile update validation failed for user [{}]: missing required fields.", user.getId());
             ra.addFlashAttribute("error", "All fields are required.");
             ra.addFlashAttribute("tab", "edit");
             return "redirect:/profile";
         }
         if (!ValidationUtil.isValidEmail(sanitizedEmail)) {
+            log.warn("Profile update validation failed for user [{}]: invalid email address.", user.getId());
             ra.addFlashAttribute("error", "Invalid email address.");
             ra.addFlashAttribute("tab", "edit");
             return "redirect:/profile";
         }
         if (sanitizedUsername.length() < 3 || sanitizedUsername.length() > 30) {
+            log.warn("Profile update validation failed for user [{}]: username length out of range.", user.getId());
             ra.addFlashAttribute("error", "Username must be 3-30 characters.");
             ra.addFlashAttribute("tab", "edit");
             return "redirect:/profile";
@@ -86,21 +91,25 @@ public class ProfileController {
 
     private String handleChangePassword(UserEntity user, String currentPassword, String newPassword, String confirmPassword, RedirectAttributes ra) {
         if (isBlank(currentPassword) || isBlank(newPassword) || isBlank(confirmPassword)) {
+            log.warn("Password change validation failed for user [{}]: missing required fields.", user.getId());
             ra.addFlashAttribute("error", "All password fields are required.");
             ra.addFlashAttribute("tab", "password");
             return "redirect:/profile";
         }
         if (!newPassword.equals(confirmPassword)) {
+            log.warn("Password change validation failed for user [{}]: passwords do not match.", user.getId());
             ra.addFlashAttribute("error", "New passwords do not match.");
             ra.addFlashAttribute("tab", "password");
             return "redirect:/profile";
         }
         if (newPassword.length() < 6) {
+            log.warn("Password change validation failed for user [{}]: password too short.", user.getId());
             ra.addFlashAttribute("error", "New password must be at least 6 characters.");
             ra.addFlashAttribute("tab", "password");
             return "redirect:/profile";
         }
         if (newPassword.equals(currentPassword)) {
+            log.warn("Password change validation failed for user [{}]: new password matches current password.", user.getId());
             ra.addFlashAttribute("error", "New password must differ from current password.");
             ra.addFlashAttribute("tab", "password");
             return "redirect:/profile";
@@ -108,6 +117,7 @@ public class ProfileController {
 
         userService.changePassword(user.getId(), currentPassword, newPassword);
         ra.addFlashAttribute("success", "Password changed successfully.");
+        log.info("Password changed successfully for user [{}].", user.getId());
         return "redirect:/profile";
     }
 

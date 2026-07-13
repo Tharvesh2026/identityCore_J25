@@ -2,6 +2,7 @@ package dev.tharbytes.identityCore.security;
 
 import dev.tharbytes.identityCore.entity.UserEntity;
 import dev.tharbytes.identityCore.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class AppUserDetailsService implements UserDetailsService {
 
@@ -20,8 +22,13 @@ public class AppUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String mailId) throws UsernameNotFoundException {
+        log.info("Authentication initiated for username [{}].", mailId);
+
         UserEntity user = userRepository.findByMailId(mailId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + mailId));
+                .orElseThrow(() -> {
+                    log.warn("Authentication failed for username [{}]: user not found.", mailId);
+                    return new UsernameNotFoundException("User not found: " + mailId);
+                });
 
         List<SimpleGrantedAuthority> authorities = user.getRole().getPermissions().stream()
                 .map(p -> new SimpleGrantedAuthority(p.getPermissionKey()))
@@ -29,6 +36,14 @@ public class AppUserDetailsService implements UserDetailsService {
 
         // Also add ROLE_ prefix authority for Spring Security hasRole checks
         authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRoleName()));
+
+        if ("SUSPENDED".equalsIgnoreCase(user.getStatus())) {
+            log.warn("Authentication attempted for locked account [{}].", mailId);
+        } else if ("INACTIVE".equalsIgnoreCase(user.getStatus())) {
+            log.warn("Authentication attempted for inactive account [{}].", mailId);
+        } else {
+            log.info("User details loaded successfully for username [{}].", mailId);
+        }
 
         return User.builder()
                 .username(mailId)   // use email as username for Spring Security

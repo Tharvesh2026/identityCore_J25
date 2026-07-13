@@ -74,17 +74,19 @@ public class UserController {
         switch (action) {
             case "updateRole" -> {
                 userService.updateRole(id, roleId);
+                log.info("Role [{}] assigned to user [{}] by [{}].", roleId, id, currentUser.getUsername());
                 ra.addFlashAttribute("success", "Role updated successfully");
             }
             case "updateStatus" -> {
                 UserEntity target = userService.getById(id);
                 userService.updateStatus(id, status);
                 log.info("ACTION=STATUS_UPDATE | BY={} | TARGET={} | OLD={} | NEW={}",
-                    currentUser.getUsername(), target.getUsername(), target.getStatus(), status);
+                        currentUser.getUsername(), target.getUsername(), target.getStatus(), status);
                 ra.addFlashAttribute("success", "Status updated successfully");
             }
             case "resetPassword" -> {
                 if (newPassword == null || newPassword.length() < 6) {
+                    log.warn("Password reset validation failed for user [{}]: password too short.", id);
                     ra.addFlashAttribute("error", "Password must be at least 6 characters");
                     return "redirect:/manage-user?id=" + id;
                 }
@@ -93,7 +95,10 @@ public class UserController {
                 log.info("ACTION=PASSWORD_RESET | BY={} | TARGET={}", currentUser.getUsername(), target.getUsername());
                 ra.addFlashAttribute("success", "Password reset successfully");
             }
-            default -> ra.addFlashAttribute("error", "Invalid action");
+            default -> {
+                log.warn("Invalid user management action [{}] attempted by [{}] on user [{}].", action, currentUser.getUsername(), id);
+                ra.addFlashAttribute("error", "Invalid action");
+            }
         }
 
         return "redirect:/manage-user?id=" + id;
@@ -108,10 +113,10 @@ public class UserController {
             @RequestParam String password,
             RedirectAttributes ra) {
 
-        if (name == null || name.isBlank()) { ra.addFlashAttribute("error", "Name is required"); return "redirect:/login?tab=register"; }
-        if (username == null || username.isBlank()) { ra.addFlashAttribute("error", "Username is required"); return "redirect:/login?tab=register"; }
-        if (email == null || !email.contains("@")) { ra.addFlashAttribute("error", "Invalid email address"); return "redirect:/login?tab=register"; }
-        if (password == null || password.length() < 6) { ra.addFlashAttribute("error", "Password must be at least 6 characters"); return "redirect:/login?tab=register"; }
+        if (name == null || name.isBlank()) { log.warn("Registration validation failed: name is required."); ra.addFlashAttribute("error", "Name is required"); return "redirect:/login?tab=register"; }
+        if (username == null || username.isBlank()) { log.warn("Registration validation failed: username is required."); ra.addFlashAttribute("error", "Username is required"); return "redirect:/login?tab=register"; }
+        if (email == null || !email.contains("@")) { log.warn("Registration validation failed for username [{}]: invalid email address.", username); ra.addFlashAttribute("error", "Invalid email address"); return "redirect:/login?tab=register"; }
+        if (password == null || password.length() < 6) { log.warn("Registration validation failed for username [{}]: password too short.", username); ra.addFlashAttribute("error", "Password must be at least 6 characters"); return "redirect:/login?tab=register"; }
 
         userService.register(name, username, email, password);
         ra.addFlashAttribute("success", "Registration successful. Please login.");
