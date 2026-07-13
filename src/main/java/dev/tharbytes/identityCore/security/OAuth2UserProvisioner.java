@@ -6,6 +6,8 @@ import dev.tharbytes.identityCore.exception.ResourceNotFoundException;
 import dev.tharbytes.identityCore.repository.RoleRepository;
 import dev.tharbytes.identityCore.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Component
 public class OAuth2UserProvisioner {
 
@@ -23,6 +24,9 @@ public class OAuth2UserProvisioner {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+
+    private static final Logger log =
+            LoggerFactory.getLogger(AppUserDetailsService.class);
 
     public OAuth2UserProvisioner(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;

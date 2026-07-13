@@ -5,22 +5,29 @@ import dev.tharbytes.identityCore.dto.response.ApiResponse;
 import dev.tharbytes.identityCore.dto.response.UserResponse;
 import dev.tharbytes.identityCore.entity.UserEntity;
 import dev.tharbytes.identityCore.exception.ValidationException;
+import dev.tharbytes.identityCore.security.AppUserDetailsService;
 import dev.tharbytes.identityCore.security.AuthHelper;
 import dev.tharbytes.identityCore.service.UserService;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserApiController {
 
     private final UserService userService;
     private final AuthHelper authHelper;
+
+
+    private static final Logger log =
+            LoggerFactory.getLogger(AppUserDetailsService.class);
+
 
     public UserApiController(UserService userService, AuthHelper authHelper) {
         this.userService = userService;

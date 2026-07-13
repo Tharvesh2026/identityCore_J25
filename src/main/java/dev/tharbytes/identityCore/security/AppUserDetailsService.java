@@ -3,6 +3,8 @@ package dev.tharbytes.identityCore.security;
 import dev.tharbytes.identityCore.entity.UserEntity;
 import dev.tharbytes.identityCore.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
@@ -10,11 +12,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
+
 @Service
 public class AppUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+
+    private static final Logger log =
+            LoggerFactory.getLogger(AppUserDetailsService.class);
 
     public AppUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;

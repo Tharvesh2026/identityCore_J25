@@ -4,14 +4,17 @@ import dev.tharbytes.identityCore.dto.request.*;
 import dev.tharbytes.identityCore.dto.response.*;
 import dev.tharbytes.identityCore.entity.*;
 import dev.tharbytes.identityCore.exception.ValidationException;
+import dev.tharbytes.identityCore.security.AppUserDetailsService;
 import dev.tharbytes.identityCore.security.AuthHelper;
 import dev.tharbytes.identityCore.service.*;
 import dev.tharbytes.identityCore.util.ValidationUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
+
 @RestController
 @RequestMapping("/auth")
 public class AuthApiController {
@@ -19,6 +22,11 @@ public class AuthApiController {
     private final UserService userService;
     private final RoleService roleService;
     private final AuthHelper authHelper;
+
+
+    private static final Logger log =
+            LoggerFactory.getLogger(AppUserDetailsService.class);
+
 
     public AuthApiController(UserService userService, RoleService roleService, AuthHelper authHelper) {
         this.userService = userService;

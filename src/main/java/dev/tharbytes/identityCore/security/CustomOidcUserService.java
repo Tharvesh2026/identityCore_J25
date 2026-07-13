@@ -2,6 +2,8 @@ package dev.tharbytes.identityCore.security;
 
 import dev.tharbytes.identityCore.entity.UserEntity;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
@@ -18,12 +20,14 @@ import java.util.List;
  * OIDC providers through OidcUserService rather than the plain OAuth2UserService used
  * for non-OIDC providers like GitHub, so this is kept as a separate handler.
  */
-@Slf4j
 @Service
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
     private final OAuth2UserProvisioner provisioner;
     private final OidcUserService delegate = new OidcUserService();
+
+    private static final Logger log =
+            LoggerFactory.getLogger(AppUserDetailsService.class);
 
     public CustomOidcUserService(OAuth2UserProvisioner provisioner) {
         this.provisioner = provisioner;

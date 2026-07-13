@@ -2,6 +2,8 @@ package dev.tharbytes.identityCore.security;
 
 import dev.tharbytes.identityCore.entity.UserEntity;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,12 +23,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
+
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final OAuth2UserProvisioner provisioner;
     private final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+
+
+    private static final Logger log =
+            LoggerFactory.getLogger(AppUserDetailsService.class);
+
 
     public CustomOAuth2UserService(OAuth2UserProvisioner provisioner) {
         this.provisioner = provisioner;
