@@ -55,6 +55,13 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
+		<!-- Spring Security OAuth2 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
 		<!-- Thymeleaf + Security extras (sec:authorize) -->
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
@@ -65,6 +72,8 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>1.18.46</version>
+			<scope>compile</scope>
 		</dependency>
 
 
