@@ -20,6 +20,7 @@ public class UserController {
     private final UserService userService;
     private final RoleService roleService;
     private final AuthHelper authHelper;
+    private static final String[] AVATAR_COLORS = {"purple","blue","teal","amber","green"};
 
     public UserController(UserService userService, RoleService roleService, AuthHelper authHelper) {
         this.userService = userService;

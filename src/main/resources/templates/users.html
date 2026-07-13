@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
     <link rel="stylesheet" th:href="@{/assets/icore.css}">
 </head>
-<body>
 
 <div class="ic-shell">
 
@@ -87,7 +86,7 @@
                         <tr th:each="u, iterStat : ${users}">
                             <td>
                                 <div style="display:flex; align-items:center; gap:10px;">
-                                    <div th:classappend="${'av-' + new String[]{'purple','blue','teal','amber','green'}[iterStat.index % 5]}"
+                                    <div th:classappend="${'av-' + #strings.arraySplit('purple,blue,teal,amber,green', ',')[iterStat.index % 5]}"
                                          class="ic-avatar"
                                          th:text="${#strings.toUpperCase(#strings.substring(u.name, 0, 1))}">U</div>
                                     <div>

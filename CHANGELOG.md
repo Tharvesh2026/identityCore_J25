@@ -4,9 +4,30 @@ All notable changes to the **i.Core** project will be documented in this file.
 
 ---
 
-## [v2.0] — Spring Boot Architecture Modernization
+## [v2.0] — PostgreSQL Migration & Stability Patch
+**Release Date:** July 2026
+**Release Type:** Minor Release (Stable)
+
+Follow-up stabilization release addressing template-engine regressions, entity lifecycle bugs, and a production-database migration from H2 to **PostgreSQL (Supabase)**.
+
+### Changed
+* **Database Backend:** Migrated primary datastore from in-memory H2 to persistent **PostgreSQL** via Supabase, introducing profile-based configuration (`application-postgres.properties`) alongside the existing H2 profile for local development.
+* **SQL Initialization Scope:** Restricted `spring.sql.init.mode` to `embedded`, so `data.sql` seeding now runs only against H2; PostgreSQL environments rely exclusively on the idempotent `SeedService.seed()` logic, preventing duplicate-key failures on application restart.
+
+### Fixed
+* **Entity `equals()`/`hashCode()` Collection Bug:** Removed lazy-loaded collection and association fields from Lombok-generated `equals()`/`hashCode()` on `Roles` and `Permissions`, resolving a `ConcurrentModificationException` triggered by re-entrant Hibernate collection loading during authentication and seeding.
+* **Immutable Collection Assignment:** Replaced `Set.of(...)` / `List.of(...)` assignments to managed JPA collections in `SeedService` with mutable `HashSet`/`ArrayList` wrappers, resolving an `UnsupportedOperationException` during entity merge.
+* **REST Login Endpoint:** Replaced reliance on Spring's default form-login POST handling with a dedicated JSON-based `AuthController`, resolving a 403 Forbidden response when authenticating via JSON payloads (e.g. Swagger/API clients).
+* **Thymeleaf Implicit Object Removal:** Replaced deprecated `#session`/`#request` expression-object references (removed in Thymeleaf 3.1+) with explicit model attributes (`sessionTimeout`) across `welcome.html`, resolving template parsing failures.
+* **Missing Navbar Model Attribute:** Added the `user` model attribute to the `/users` and `/roles` controllers, resolving an `EL1007E` null-property error in the shared `navbar` fragment.
+* **Session Countdown Script:** Fixed undeclared-variable and temporal-dead-zone (`ReferenceError`) bugs in the session-timeout countdown script; subsequently removed the active countdown/refresh-session script from `welcome.html` after identifying it as a cause of unintended session invalidation.
+* **Restricted SpEL Type Resolution:** Replaced `new String[]{...}` array-construction expressions in `users.html` with `#strings.arraySplit(...)`, resolving an `EL1005E: Type cannot be found` error caused by Thymeleaf's sandboxed SpEL type locator.
+
+---
+
+## [v2.0-beta] — Spring Boot Architecture Modernization
 **Release Date:** July 2026  
-**Release Type:** Major Upgrade (Stable)
+**Release Type:** Major Upgrade
 
 This release represents a complete architectural rewrite of the legacy servlet-based implementation, transitioning the codebase into a robust, secure, and modern **Spring Boot** application.
 
