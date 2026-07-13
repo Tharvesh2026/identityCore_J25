@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i.Core — Manage User</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
+    <link rel="stylesheet" th:href="@{/assets/icore.css}">
+</head>
+<body>
+
+<div class="ic-shell">
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="ic-main">
+
+        <!-- Topbar -->
+        <div class="ic-topbar">
+            <div class="ic-topbar-left">
+                <div class="ic-breadcrumb">
+                    <span>i.Core</span>
+                    <span class="ic-breadcrumb-sep">/</span>
+                    <a th:href="@{/users}" style="color:var(--text-3); text-decoration:none;">Users</a>
+                    <span class="ic-breadcrumb-sep">/</span>
+                    <span th:text="${selectedUser.username}">username</span>
+                </div>
+            </div>
+            <div>
+                <a th:href="@{/users}" class="ic-btn ic-btn-sm">
+                    <i class="ti ti-arrow-left" style="font-size:14px;"></i> Back to users
+                </a>
+            </div>
+        </div>
+
+        <div class="ic-content">
+
+            <!-- Flash alerts -->
+            <div class="ic-alert ic-alert-success" th:if="${success}">
+                <i class="ti ti-circle-check"></i>
+                <span th:text="${success}"></span>
+            </div>
+            <div class="ic-alert ic-alert-error" th:if="${error}">
+                <i class="ti ti-alert-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Profile header card -->
+            <div class="ic-card" style="margin-bottom:20px; overflow:hidden;">
+                <!-- Banner -->
+                <div style="height:72px;
+                            background: linear-gradient(135deg, #312E81 0%, #4338CA 60%, #6366F1 100%);
+                            position:relative;">
+                </div>
+                <div style="padding: 0 24px 22px; position:relative;">
+                    <!-- Avatar overlapping banner -->
+                    <div class="ic-avatar ic-avatar-lg av-purple"
+                         style="position:absolute; top:-26px; left:24px;
+                                border:3px solid var(--surface); font-size:18px;"
+                         th:text="${#strings.toUpperCase(#strings.substring(selectedUser.name, 0, 1))}">U</div>
+
+                    <div style="padding-top:36px; display:flex;
+                                justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="font-size:17px; font-weight:600; color:var(--text-1);"
+                                 th:text="${selectedUser.name}">Name</div>
+                            <div style="font-size:13px; color:var(--text-3); margin-top:3px;">
+                                @<span th:text="${selectedUser.username}">username</span>
+                                &nbsp;&bull;&nbsp;
+                                <span th:text="${selectedUser.mailId}">email</span>
+                            </div>
+                            <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                                <span class="ic-tag"
+                                      th:classappend="${selectedUser.roleName != null && selectedUser.roleName.contains('ADMIN')} ? 'tag-admin' : 'tag-generic'"
+                                      th:text="${selectedUser.roleName}">ROLE</span>
+                                <span class="ic-tag"
+                                      th:classappend="${'ACTIVE'.equalsIgnoreCase(selectedUser.status)} ? 'tag-active' : 'tag-inactive'">
+                                    <i class="ti ti-circle-check" style="font-size:12px;"></i>
+                                    <span th:text="${selectedUser.status}">ACTIVE</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Quick stat pills -->
+                        <div style="display:flex; gap:10px;">
+                            <div style="text-align:center; padding:8px 14px;
+                                        background:var(--surface-2); border-radius:var(--radius-sm);">
+                                <div style="font-size:10px; color:var(--text-3); margin-bottom:2px;">User ID</div>
+                                <div style="font-family:var(--mono); font-size:13px; font-weight:500;
+                                            color:var(--text-1);">#<span th:text="${selectedUser.id}">1</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Three action panels -->
+            <div class="ic-grid-3">
+
+                <!-- ① Change Role -->
+                <div class="ic-card ic-card-padded">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                        <div style="width:32px; height:32px; border-radius:8px;
+                                    background:var(--brand-light);
+                                    display:flex; align-items:center; justify-content:center;">
+                            <i class="ti ti-shield-lock" style="font-size:17px; color:var(--brand);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:14px; font-weight:600; color:var(--text-1);">Change role</div>
+                            <div style="font-size:12px; color:var(--text-3);">Reassign to a different role</div>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/manage-user}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <input type="hidden" name="id" th:value="${selectedUser.id}">
+                        <input type="hidden" name="action" value="updateRole">
+
+                        <div class="ic-form-group">
+                            <label class="ic-label">Select new role</label>
+                            <select name="roleId" class="ic-input ic-select">
+                                <option th:each="r : ${roles}"
+                                        th:value="${r.id}"
+                                        th:text="${r.roleName}"
+                                        th:selected="${r.roleName == selectedUser.roleName}">ROLE</option>
+                            </select>
+                        </div>
+
+                        <div style="padding:10px 12px; background:var(--brand-light);
+                                    border:1px solid #C7D2FE; border-radius:var(--radius-sm);
+                                    font-size:12px; color:var(--brand); margin-bottom:14px;">
+                            <i class="ti ti-info-circle" style="font-size:14px;"></i>
+                            Permissions update instantly on the user's next request.
+                        </div>
+
+                        <button type="submit" class="ic-btn ic-btn-primary" style="width:100%; justify-content:center;">
+                            <i class="ti ti-device-floppy"></i> Update role
+                        </button>
+                    </form>
+                </div>
+
+                <!-- ② Change Status -->
+                <div class="ic-card ic-card-padded">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                        <div style="width:32px; height:32px; border-radius:8px;
+                                    background:#FEF3C7;
+                                    display:flex; align-items:center; justify-content:center;">
+                            <i class="ti ti-toggle-right" style="font-size:17px; color:var(--amber);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:14px; font-weight:600; color:var(--text-1);">Account status</div>
+                            <div style="font-size:12px; color:var(--text-3);">Enable, lock or disable access</div>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/manage-user}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <input type="hidden" name="id" th:value="${selectedUser.id}">
+                        <input type="hidden" name="action" value="updateStatus">
+
+                        <div class="ic-form-group">
+                            <label class="ic-label">New status</label>
+                            <select name="status" class="ic-input ic-select">
+                                <option value="ACTIVE"   th:selected="${'ACTIVE' == selectedUser.status}">ACTIVE</option>
+                                <option value="DISABLED"  th:selected="${'DISABLED' == selectedUser.status}">DISABLED</option>
+                                <option value="LOCKED"   th:selected="${'LOCKED' == selectedUser.status}">LOCKED</option>
+                            </select>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:14px;">
+                            <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-3);">
+                                <span class="ic-dot ic-dot-green"></span> ACTIVE — full access
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-3);">
+                                <span class="ic-dot ic-dot-red"></span> DISABLED — cannot log in
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-3);">
+                                <span class="ic-dot ic-dot-amber"></span> LOCKED — temporarily blocked
+                            </div>
+                        </div>
+
+                        <button type="submit" class="ic-btn" style="width:100%; justify-content:center;
+                                background:#FEF3C7; border-color:#FDE68A; color:var(--amber);">
+                            <i class="ti ti-toggle-right"></i> Update status
+                        </button>
+                    </form>
+                </div>
+
+                <!-- ③ Reset Password -->
+                <div class="ic-card ic-card-padded">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                        <div style="width:32px; height:32px; border-radius:8px;
+                                    background:var(--red-bg);
+                                    display:flex; align-items:center; justify-content:center;">
+                            <i class="ti ti-lock-open" style="font-size:17px; color:var(--red);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:14px; font-weight:600; color:var(--text-1);">Reset password</div>
+                            <div style="font-size:12px; color:var(--text-3);">Force a new password for this user</div>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/manage-user}" method="post"
+                          onsubmit="return confirm('Reset password for this user? This cannot be undone.');">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <input type="hidden" name="id" th:value="${selectedUser.id}">
+                        <input type="hidden" name="action" value="resetPassword">
+
+                        <div class="ic-form-group">
+                            <label class="ic-label">New password</label>
+                            <div class="ic-input-icon" style="position:relative;">
+                                <i class="ti ti-lock"></i>
+                                <input type="password" class="ic-input" id="newPwd"
+                                       name="newPassword"
+                                       placeholder="At least 6 characters"
+                                       minlength="6" required>
+                                <i class="ti ti-eye" id="toggleNewPwd"
+                                   style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                                          cursor:pointer; color:var(--text-3); font-size:16px; left:auto;"></i>
+                            </div>
+                        </div>
+
+                        <div style="padding:10px 12px; background:var(--red-bg);
+                                    border:1px solid #FECACA; border-radius:var(--radius-sm);
+                                    font-size:12px; color:var(--red); margin-bottom:14px;">
+                            <i class="ti ti-alert-triangle" style="font-size:14px;"></i>
+                            This will immediately invalidate the user's current password.
+                        </div>
+
+                        <button type="submit" class="ic-btn ic-btn-danger" style="width:100%; justify-content:center;">
+                            <i class="ti ti-key"></i> Reset password
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    const toggleNewPwd = document.getElementById('toggleNewPwd');
+    const newPwd       = document.getElementById('newPwd');
+    if (toggleNewPwd && newPwd) {
+        toggleNewPwd.addEventListener('click', function () {
+            const isText = newPwd.type === 'text';
+            newPwd.type = isText ? 'password' : 'text';
+            toggleNewPwd.className = isText ? 'ti ti-eye' : 'ti ti-eye-off';
+        });
+    }
+</script>
+
+</body>
+</html>

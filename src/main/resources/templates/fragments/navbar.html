@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- Navbar Fragment: th:fragment="navbar" -->
+<aside class="ic-sidebar" th:fragment="navbar">
+
+    <!-- Logo -->
+    <div class="ic-sidebar-logo">
+        <div class="ic-logo-mark">
+            <i class="ti ti-cloud"></i>
+        </div>
+        <div>
+            <div class="ic-logo-text">i.Core</div>
+            <div class="ic-logo-ver">v1.2.0-STABLE</div>
+        </div>
+    </div>
+
+    <!-- User pill -->
+    <div style="padding: 12px 10px;">
+        <div style="display:flex; align-items:center; gap:9px; padding: 8px 10px;
+                    background: var(--surface-2); border-radius: var(--radius-sm);">
+            <div class="ic-avatar av-purple" style="font-size:12px;"
+                 th:text="${#strings.toUpperCase(#strings.substring(user.name, 0, 1))}">U</div>
+            <div style="overflow:hidden;">
+                <div style="font-size:13px; font-weight:500; color:var(--text-1);
+                            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                     th:text="${user.name}">User</div>
+                <div style="font-size:11px; color:var(--text-3);"
+                     th:text="${user.roleName}">ROLE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main nav -->
+    <div class="ic-nav-section">Main</div>
+
+    <a th:href="@{/welcome}"
+       th:classappend="${currentUri == '/welcome'} ? 'active'"
+       class="ic-nav-item">
+        <i class="ti ti-layout-dashboard"></i> Dashboard
+    </a>
+
+    <a th:href="@{/profile}"
+       th:classappend="${currentUri == '/profile'} ? 'active'"
+       class="ic-nav-item">
+        <i class="ti ti-user-circle"></i> Profile
+    </a>
+
+    <a sec:authorize="hasAuthority('USER_READ')"
+       th:href="@{/users}"
+       th:classappend="${currentUri == '/users'} ? 'active'"
+       class="ic-nav-item">
+        <i class="ti ti-users"></i> Users
+    </a>
+
+    <a sec:authorize="hasAuthority('ROLE_READ')"
+       th:href="@{/roles}"
+       th:classappend="${currentUri == '/roles'} ? 'active'"
+       class="ic-nav-item">
+        <i class="ti ti-shield-lock"></i> Roles
+    </a>
+
+    <!-- System nav -->
+    <div class="ic-nav-section">System</div>
+
+    <a sec:authorize="hasAuthority('LOG_VIEW')"
+       th:href="@{/logs}"
+       class="ic-nav-item">
+        <i class="ti ti-file-description"></i> Audit Logs
+    </a>
+
+    <a th:href="@{/settings}"
+       th:classappend="${currentUri == '/settings'} ? 'active'"
+       class="ic-nav-item">
+        <i class="ti ti-settings"></i> Settings
+    </a>
+
+    <!-- Footer / Logout -->
+    <div class="ic-sidebar-footer">
+        <form th:action="@{/logout}" method="post" style="margin:0;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="ic-nav-item danger"
+                    style="width:100%; border:none; background:none; cursor:pointer; text-align:left;"
+                    onclick="return confirm('Sign out of i.Core?')">
+                <i class="ti ti-logout"></i> Sign out
+            </button>
+        </form>
+    </div>
+
+</aside>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i.Core — Users</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
+    <link rel="stylesheet" th:href="@{/assets/icore.css}">
+</head>
+<body>
+
+<div class="ic-shell">
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="ic-main">
+
+        <div class="ic-topbar">
+            <div class="ic-breadcrumb">
+                <span>i.Core</span>
+                <span class="ic-breadcrumb-sep">/</span>
+                <span>Users</span>
+            </div>
+        </div>
+
+        <div class="ic-content">
+
+            <div class="ic-page-header">
+                <div>
+                    <div class="ic-page-title">User management</div>
+                    <div class="ic-page-sub">Manage registered users, roles and account access.</div>
+                </div>
+            </div>
+
+            <!-- Stat cards -->
+            <div class="ic-grid-3" style="margin-bottom: 20px;">
+                <div class="ic-metric">
+                    <div class="ic-metric-label">
+                        <i class="ti ti-users" style="font-size:14px;"></i> Total users
+                    </div>
+                    <div class="ic-metric-value" th:text="${#lists.size(users)}">0</div>
+                    <div class="ic-metric-sub">Registered accounts</div>
+                </div>
+                <div class="ic-metric">
+                    <div class="ic-metric-label">
+                        <i class="ti ti-circle-check" style="font-size:14px;color:var(--green);"></i> Active accounts
+                    </div>
+                    <div class="ic-metric-value" style="color:var(--green);" th:text="${activeUsers}">0</div>
+                    <div class="ic-metric-sub">Currently enabled</div>
+                </div>
+                <div class="ic-metric">
+                    <div class="ic-metric-label">
+                        <i class="ti ti-shield-check" style="font-size:14px;color:var(--brand);"></i> Admin accounts
+                    </div>
+                    <div class="ic-metric-value" style="color:var(--brand);" th:text="${adminUsers}">0</div>
+                    <div class="ic-metric-sub">SYS_ADMIN or ADMIN role</div>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div style="margin-bottom:14px;">
+                <div class="ic-search">
+                    <i class="ti ti-search"></i>
+                    <input type="text" id="searchUser"
+                           placeholder="Search by name, username or email…">
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="ic-table-wrap">
+                <div style="overflow-x:auto;">
+                    <table class="ic-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>ID</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="u, iterStat : ${users}">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div th:classappend="${'av-' + new String[]{'purple','blue','teal','amber','green'}[iterStat.index % 5]}"
+                                         class="ic-avatar"
+                                         th:text="${#strings.toUpperCase(#strings.substring(u.name, 0, 1))}">U</div>
+                                    <div>
+                                        <div style="font-weight:500; color:var(--text-1); font-size:13.5px;"
+                                             th:text="${u.name}">Name</div>
+                                        <div style="font-size:12px; color:var(--text-3);">
+                                            @<span th:text="${u.username}">username</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="color:var(--text-2); font-size:13px;" th:text="${u.mailId}">email</td>
+                            <td>
+                                <span class="ic-tag"
+                                      th:classappend="${u.roleName != null && u.roleName.contains('ADMIN')} ? 'tag-admin' : (${u.roleName != null && u.roleName.contains('USER')} ? 'tag-user' : 'tag-generic')"
+                                      th:text="${u.roleName}">ROLE</span>
+                            </td>
+                            <td>
+                                <span class="ic-tag"
+                                      th:classappend="${'ACTIVE'.equalsIgnoreCase(u.status)} ? 'tag-active' : 'tag-inactive'">
+                                    <i class="ti"
+                                       th:classappend="${'ACTIVE'.equalsIgnoreCase(u.status)} ? 'ti-circle-check' : 'ti-circle-x'"
+                                       style="font-size:13px;"></i>
+                                    <span th:text="${u.status}">ACTIVE</span>
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-family:var(--mono); font-size:12px; color:var(--text-3);">
+                                    #<span th:text="${u.id}">1</span>
+                                </span>
+                            </td>
+                            <td>
+                                <a th:if="${canManageUsers}"
+                                   th:href="@{/manage-user(id=${u.id})}"
+                                   class="ic-btn ic-btn-sm">
+                                    <i class="ti ti-settings" style="font-size:14px;"></i> Manage
+                                </a>
+                                <span th:unless="${canManageUsers}"
+                                      style="font-size:12px; color:var(--text-3);">View only</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top:12px; font-size:12px; color:var(--text-3);">
+                Showing <span th:text="${#lists.size(users)}">0</span> registered users
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+const searchInput = document.getElementById("searchUser");
+const table = document.getElementById("usersTable");
+searchInput.addEventListener("keyup", function () {
+    const q = this.value.toLowerCase();
+    table.querySelectorAll("tbody tr").forEach(function(row) {
+        row.style.display = row.innerText.toLowerCase().includes(q) ? "" : "none";
+    });
+});
+</script>
+
+</body>
+</html>

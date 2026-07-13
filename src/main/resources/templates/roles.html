@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i.Core — Roles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
+    <link rel="stylesheet" th:href="@{/assets/icore.css}">
+</head>
+<body>
+
+<div class="ic-shell">
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="ic-main">
+
+        <div class="ic-topbar">
+            <div class="ic-breadcrumb">
+                <span>i.Core</span>
+                <span class="ic-breadcrumb-sep">/</span>
+                <span>Roles</span>
+            </div>
+        </div>
+
+        <div class="ic-content">
+
+            <!-- Flash messages -->
+            <div class="ic-alert ic-alert-success" th:if="${success}">
+                <i class="ti ti-circle-check"></i>
+                <span th:text="${success}"></span>
+            </div>
+            <div class="ic-alert ic-alert-error" th:if="${error}">
+                <i class="ti ti-alert-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <div class="ic-page-header">
+                <div>
+                    <div class="ic-page-title">Role management</div>
+                    <div class="ic-page-sub">Create custom roles and manage permission groups.</div>
+                </div>
+            </div>
+
+            <!-- Create new role -->
+            <div class="ic-card ic-card-padded" style="margin-bottom: 20px;">
+                <div style="font-size:14px; font-weight:500; color:var(--text-1); margin-bottom:14px;
+                            display:flex; align-items:center; gap:7px;">
+                    <i class="ti ti-plus-circle" style="font-size:18px; color:var(--brand);"></i>
+                    Create a new role
+                </div>
+                <form th:action="@{/roles}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:220px;">
+                            <label class="ic-label">Role name</label>
+                            <div class="ic-input-icon">
+                                <i class="ti ti-shield"></i>
+                                <input type="text" class="ic-input" name="roleName"
+                                       placeholder="e.g. SUPPORT_ENGINEER" required
+                                       style="text-transform:uppercase;"
+                                       oninput="this.value=this.value.toUpperCase().replace(/\s/g,'_')">
+                            </div>
+                        </div>
+                        <div>
+                            <button type="submit" class="ic-btn ic-btn-primary"
+                                    style="padding: 8px 18px; height:38px;">
+                                <i class="ti ti-plus"></i> Create role
+                            </button>
+                        </div>
+                    </div>
+                    <div style="font-size:12px; color:var(--text-3); margin-top:6px;">
+                        New roles are assigned <code style="background:var(--surface-2);padding:1px 5px;border-radius:4px;">PROFILE_READ</code>
+                        permission by default.
+                    </div>
+                </form>
+            </div>
+
+            <!-- Roles table -->
+            <div class="ic-table-wrap">
+                <div style="overflow-x:auto;">
+                    <table class="ic-table">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>ID</th>
+                                <th>Status</th>
+                                <th>Permissions</th>
+                                <th>Rename</th>
+                                <th>Update status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="role : ${roles}">
+                            <td>
+                                <div style="display:flex; align-items:center; gap:9px;">
+                                    <div style="width:30px; height:30px; border-radius:8px;
+                                                background:var(--brand-light);
+                                                display:flex; align-items:center; justify-content:center;">
+                                        <i class="ti ti-shield-lock" style="font-size:15px; color:var(--brand);"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600; color:var(--text-1); font-size:13.5px;
+                                                    font-family:var(--mono);"
+                                             th:text="${role.roleName}">ROLE</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="font-family:var(--mono); font-size:12px; color:var(--text-3);">
+                                    #<span th:text="${role.id}">1</span>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="ic-tag"
+                                      th:classappend="${'ACTIVE'.equalsIgnoreCase(role.status)} ? 'tag-active' : 'tag-inactive'">
+                                    <i class="ti"
+                                       th:classappend="${'ACTIVE'.equalsIgnoreCase(role.status)} ? 'ti-circle-check' : 'ti-circle-x'"
+                                       style="font-size:13px;"></i>
+                                    <span th:text="${role.status}">ACTIVE</span>
+                                </span>
+                            </td>
+                            <td>
+                                <a th:href="@{/manage-role(id=${role.id})}"
+                                   class="ic-btn ic-btn-sm">
+                                    <i class="ti ti-adjustments" style="font-size:14px;"></i> Manage
+                                </a>
+                            </td>
+
+                            <!-- Rename form -->
+                            <td>
+                                <form th:action="@{/roles/rename}" method="post"
+                                      style="display:flex; gap:6px; align-items:center;">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <input type="hidden" name="roleId" th:value="${role.id}">
+                                    <input type="text" class="ic-input" name="roleName"
+                                           th:value="${role.roleName}"
+                                           style="width:150px; font-family:var(--mono); font-size:12px;"
+                                           oninput="this.value=this.value.toUpperCase().replace(/\s/g,'_')"
+                                           required>
+                                    <button type="submit" class="ic-btn ic-btn-sm">
+                                        <i class="ti ti-pencil" style="font-size:13px;"></i>
+                                    </button>
+                                </form>
+                            </td>
+
+                            <!-- Status form -->
+                            <td>
+                                <form th:action="@{/roles/status}" method="post"
+                                      style="display:flex; gap:6px; align-items:center;">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <input type="hidden" name="roleId" th:value="${role.id}">
+                                    <select name="status" class="ic-input ic-select"
+                                            style="width:130px; font-size:12px;">
+                                        <option value="ACTIVE"
+                                                th:selected="${'ACTIVE'.equalsIgnoreCase(role.status)}">ACTIVE</option>
+                                        <option value="INACTIVE"
+                                                th:selected="${'INACTIVE'.equalsIgnoreCase(role.status)}">INACTIVE</option>
+                                    </select>
+                                    <button type="submit" class="ic-btn ic-btn-sm">
+                                        <i class="ti ti-check" style="font-size:13px;"></i>
+                                    </button>
+                                </form>
+                            </td>
+
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top:12px; font-size:12px; color:var(--text-3);">
+                <span th:text="${#lists.size(roles)}">0</span> role<span th:if="${#lists.size(roles) != 1}">s</span> configured
+            </div>
+
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

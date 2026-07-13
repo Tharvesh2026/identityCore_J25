@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i.Core — My Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
+    <link rel="stylesheet" th:href="@{/assets/icore.css}">
+
+    <style>
+        .profile-banner {
+            height: 96px;
+            background: linear-gradient(135deg, #312E81 0%, #4338CA 55%, #818CF8 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            position: relative;
+        }
+        .profile-banner-dots {
+            position: absolute; inset: 0;
+            background-image: radial-gradient(circle, rgba(255,255,255,.12) 1px, transparent 1px);
+            background-size: 22px 22px;
+            border-radius: inherit;
+        }
+        .profile-avatar-wrap { position: absolute; bottom: -30px; left: 24px; }
+        .profile-avatar {
+            width: 62px; height: 62px;
+            border-radius: 50%;
+            background: #EEF2FF; color: #4338CA;
+            font-size: 22px; font-weight: 600;
+            display: flex; align-items: center; justify-content: center;
+            border: 3px solid var(--surface);
+            box-shadow: var(--shadow-sm);
+        }
+        .profile-tabs {
+            display: flex; gap: 2px;
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px; margin-bottom: 22px;
+        }
+        .profile-tab {
+            display: flex; align-items: center; gap: 6px;
+            padding: 10px 14px; font-size: 13.5px; color: var(--text-3);
+            cursor: pointer; border-bottom: 2px solid transparent;
+            margin-bottom: -1px; transition: color .15s, border-color .15s;
+            background: none; border-top: none; border-left: none; border-right: none;
+            font-family: var(--font);
+        }
+        .profile-tab.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 500; }
+        .profile-tab:hover:not(.active) { color: var(--text-2); }
+        .profile-panel { display: none; }
+        .profile-panel.active { display: block; }
+        .strength-bar { height: 5px; border-radius: 3px; background: var(--border); margin-top: 6px; overflow: hidden; }
+        .strength-fill { height: 100%; border-radius: 3px; width: 0%; transition: width .3s, background .3s; }
+    </style>
+</head>
+<body>
+
+<div class="ic-shell">
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="ic-main">
+
+        <div class="ic-topbar">
+            <div class="ic-topbar-left">
+                <div class="ic-breadcrumb">
+                    <span>i.Core</span>
+                    <span class="ic-breadcrumb-sep">/</span>
+                    <span>My Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ic-content">
+
+            <!-- Flash messages -->
+            <div class="ic-alert ic-alert-success" th:if="${success}">
+                <i class="ti ti-circle-check"></i>
+                <span th:text="${success}"></span>
+            </div>
+            <div class="ic-alert ic-alert-error" th:if="${error}">
+                <i class="ti ti-alert-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Profile header card -->
+            <div class="ic-card" style="margin-bottom: 20px; overflow: hidden;">
+
+                <div class="profile-banner">
+                    <div class="profile-banner-dots"></div>
+                    <div class="profile-avatar-wrap">
+                        <div class="profile-avatar" id="avatarDisplay"
+                             th:text="${#strings.toUpperCase(#strings.substring(user.name,0,1))}">U</div>
+                    </div>
+                </div>
+
+                <div style="padding: 44px 24px 20px;">
+                    <div style="display:flex; justify-content:space-between;
+                                align-items:flex-start; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <div style="font-size:18px; font-weight:600; color:var(--text-1);"
+                                 th:text="${user.name}">Name</div>
+                            <div style="font-size:13px; color:var(--text-3); margin-top:3px;">
+                                @<span th:text="${user.username}">username</span>
+                                &nbsp;&bull;&nbsp;
+                                <span th:text="${user.mailId}">email</span>
+                            </div>
+                            <div style="margin-top:10px; display:flex; gap:7px; flex-wrap:wrap;">
+                                <span class="ic-tag"
+                                      th:classappend="${user.roleName != null && user.roleName.contains('ADMIN')} ? 'tag-admin' : 'tag-generic'">
+                                    <i class="ti ti-shield" style="font-size:12px;"></i>
+                                    <span th:text="${user.roleName}">ROLE</span>
+                                </span>
+                                <span class="ic-tag"
+                                      th:classappend="${'ACTIVE'.equalsIgnoreCase(user.status)} ? 'tag-active' : 'tag-inactive'">
+                                    <i class="ti ti-circle-check" style="font-size:12px;"></i>
+                                    <span th:text="${user.status}">ACTIVE</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <div style="padding:8px 16px; background:var(--surface-2);
+                                        border-radius:var(--radius-sm); text-align:center;">
+                                <div style="font-size:10px; color:var(--text-3); margin-bottom:2px;">User ID</div>
+                                <div style="font-family:var(--mono); font-size:13px; font-weight:500;">
+                                    #<span th:text="${user.id}">1</span>
+                                </div>
+                            </div>
+                            <div style="padding:8px 16px; background:var(--surface-2);
+                                        border-radius:var(--radius-sm); text-align:center;">
+                                <div style="font-size:10px; color:var(--text-3); margin-bottom:2px;">Session</div>
+                                <div style="font-family:var(--mono); font-size:11px; font-weight:500; color:var(--text-2);">Active</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab nav -->
+                <div class="profile-tabs">
+                    <button class="profile-tab active" onclick="switchTab('info', this)">
+                        <i class="ti ti-user"></i> Account
+                    </button>
+                    <button class="profile-tab" onclick="switchTab('edit', this)">
+                        <i class="ti ti-edit"></i> Edit profile
+                    </button>
+                    <button class="profile-tab" onclick="switchTab('password', this)">
+                        <i class="ti ti-lock"></i> Change password
+                    </button>
+                </div>
+
+                <!-- TAB: Account info -->
+                <div id="tab-info" class="profile-panel active" style="padding: 0 24px 24px;">
+                    <div class="ic-grid-2">
+                        <div>
+                            <div style="font-size:12px; font-weight:500; color:var(--text-3);
+                                        text-transform:uppercase; letter-spacing:.06em;
+                                        margin-bottom:10px;">Personal information</div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">Full name</span>
+                                <span class="ic-info-value" th:text="${user.name}">Name</span>
+                            </div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">Username</span>
+                                <span class="ic-info-mono">@<span th:text="${user.username}">user</span></span>
+                            </div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">Email address</span>
+                                <span class="ic-info-value" th:text="${user.mailId}">email</span>
+                            </div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">Account status</span>
+                                <span class="ic-tag"
+                                      th:classappend="${'ACTIVE'.equalsIgnoreCase(user.status)} ? 'tag-active' : 'tag-inactive'"
+                                      th:text="${user.status}">ACTIVE</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size:12px; font-weight:500; color:var(--text-3);
+                                        text-transform:uppercase; letter-spacing:.06em;
+                                        margin-bottom:10px;">Access &amp; permissions</div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">Role</span>
+                                <span class="ic-tag tag-admin" th:text="${user.roleName}">ROLE</span>
+                            </div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">User ID</span>
+                                <span class="ic-info-mono">#<span th:text="${user.id}">1</span></span>
+                            </div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">Permission source</span>
+                                <span style="font-size:12px; color:var(--text-2);">DB per-request</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: Edit profile -->
+                <div id="tab-edit" class="profile-panel" style="padding: 0 24px 24px;">
+                    <div style="max-width: 520px;">
+                        <div style="font-size:12px; color:var(--text-3); margin-bottom:18px;">
+                            Update your display name and username.
+                        </div>
+                        <form th:action="@{/profile}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="action" value="updateProfile">
+
+                            <div class="ic-form-group">
+                                <label class="ic-label" for="editName">Full name</label>
+                                <div class="ic-input-icon">
+                                    <i class="ti ti-user"></i>
+                                    <input type="text" class="ic-input" id="editName" name="name"
+                                           th:value="${user.name}" placeholder="Your full name" required>
+                                </div>
+                            </div>
+                            <div class="ic-form-group">
+                                <label class="ic-label" for="editUsername">Username</label>
+                                <div class="ic-input-icon">
+                                    <i class="ti ti-at"></i>
+                                    <input type="text" class="ic-input" id="editUsername" name="username"
+                                           th:value="${user.username}" placeholder="your_username" required
+                                           oninput="this.value=this.value.toLowerCase().replace(/\s/g,'_')">
+                                </div>
+                            </div>
+                            <div class="ic-form-group">
+                                <label class="ic-label" for="editEmail">Email address</label>
+                                <div class="ic-input-icon">
+                                    <i class="ti ti-mail"></i>
+                                    <input type="email" class="ic-input" id="editEmail" name="email"
+                                           th:value="${user.mailId}" placeholder="you@example.com" required>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:10px; margin-top:4px;">
+                                <button type="button" class="ic-btn"
+                                        onclick="switchTab('info', document.querySelector('.profile-tab'))">Cancel</button>
+                                <button type="submit" class="ic-btn ic-btn-primary">
+                                    <i class="ti ti-device-floppy"></i> Save changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TAB: Change password -->
+                <div id="tab-password" class="profile-panel" style="padding: 0 24px 24px;">
+                    <div style="max-width: 520px;">
+                        <div style="font-size:12px; color:var(--text-3); margin-bottom:18px;">
+                            Choose a strong password. It must be at least 6 characters long.
+                        </div>
+                        <form th:action="@{/profile}" method="post" id="pwdForm" onsubmit="return validatePasswords()">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="action" value="changePassword">
+
+                            <div class="ic-form-group">
+                                <label class="ic-label" for="currentPwd">Current password</label>
+                                <div class="ic-input-icon" style="position:relative;">
+                                    <i class="ti ti-lock"></i>
+                                    <input type="password" class="ic-input" id="currentPwd" name="currentPassword"
+                                           placeholder="Your current password" required>
+                                    <i class="ti ti-eye" id="toggleCurrent"
+                                       style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                                              cursor:pointer; color:var(--text-3); font-size:16px; left:auto;"></i>
+                                </div>
+                            </div>
+
+                            <div class="ic-form-group">
+                                <label class="ic-label" for="newPwd">New password</label>
+                                <div class="ic-input-icon" style="position:relative;">
+                                    <i class="ti ti-lock-open"></i>
+                                    <input type="password" class="ic-input" id="newPwd" name="newPassword"
+                                           placeholder="At least 6 characters" minlength="6" required
+                                           oninput="updateStrength(this.value)">
+                                    <i class="ti ti-eye" id="toggleNew"
+                                       style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                                              cursor:pointer; color:var(--text-3); font-size:16px; left:auto;"></i>
+                                </div>
+                                <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                                <div style="font-size:11px; color:var(--text-3); margin-top:4px;" id="strengthLabel"></div>
+                            </div>
+
+                            <div class="ic-form-group">
+                                <label class="ic-label" for="confirmPwd">Confirm new password</label>
+                                <div class="ic-input-icon" style="position:relative;">
+                                    <i class="ti ti-lock-check"></i>
+                                    <input type="password" class="ic-input" id="confirmPwd" name="confirmPassword"
+                                           placeholder="Repeat new password" required>
+                                    <i class="ti ti-eye" id="toggleConfirm"
+                                       style="position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                                              cursor:pointer; color:var(--text-3); font-size:16px; left:auto;"></i>
+                                </div>
+                                <div style="font-size:11px; color:var(--red); margin-top:4px; display:none;" id="matchError">
+                                    <i class="ti ti-alert-circle"></i> Passwords do not match
+                                </div>
+                            </div>
+
+                            <button type="submit" class="ic-btn ic-btn-primary">
+                                <i class="ti ti-key"></i> Update password
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script th:inline="javascript">
+    const initTab = /*[[${tab}]]*/ null;
+
+    function switchTab(name, clickedBtn) {
+        document.querySelectorAll('.profile-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.profile-tab').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        if (clickedBtn) clickedBtn.classList.add('active');
+    }
+
+    function makeToggle(toggleId, inputId) {
+        const toggle = document.getElementById(toggleId);
+        const input  = document.getElementById(inputId);
+        if (!toggle || !input) return;
+        toggle.addEventListener('click', function () {
+            const isText = input.type === 'text';
+            input.type = isText ? 'password' : 'text';
+            toggle.className = isText ? 'ti ti-eye' : 'ti ti-eye-off';
+        });
+    }
+    makeToggle('toggleCurrent', 'currentPwd');
+    makeToggle('toggleNew',     'newPwd');
+    makeToggle('toggleConfirm', 'confirmPwd');
+
+    function updateStrength(val) {
+        const fill  = document.getElementById('strengthFill');
+        const label = document.getElementById('strengthLabel');
+        if (!fill || !label) return;
+        let score = 0;
+        if (val.length >= 6)  score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+        const map = [
+            { pct:'0%',   color:'transparent', text:'' },
+            { pct:'25%',  color:'#DC2626',      text:'Weak' },
+            { pct:'50%',  color:'#F59E0B',      text:'Fair' },
+            { pct:'75%',  color:'#3B82F6',      text:'Good' },
+            { pct:'100%', color:'#16A34A',      text:'Strong' },
+        ];
+        const s = map[Math.min(score, 4)];
+        fill.style.width      = s.pct;
+        fill.style.background = s.color;
+        label.textContent     = s.text;
+    }
+
+    function validatePasswords() {
+        const newPwd     = document.getElementById('newPwd').value;
+        const confirmPwd = document.getElementById('confirmPwd').value;
+        const matchError = document.getElementById('matchError');
+        if (newPwd !== confirmPwd) {
+            matchError.style.display = 'block';
+            document.getElementById('confirmPwd').focus();
+            return false;
+        }
+        matchError.style.display = 'none';
+        return true;
+    }
+
+    document.getElementById('confirmPwd').addEventListener('input', function () {
+        const newPwd = document.getElementById('newPwd').value;
+        document.getElementById('matchError').style.display =
+            this.value && this.value !== newPwd ? 'block' : 'none';
+    });
+
+    // Auto-open tab from flash attribute
+    if (initTab) {
+        const targetBtn = document.querySelector('[onclick*="' + initTab + '"]');
+        if (targetBtn) switchTab(initTab, targetBtn);
+    }
+</script>
+
+</body>
+</html>

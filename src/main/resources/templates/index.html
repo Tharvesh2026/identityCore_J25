@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i.Core — Sign In</title>
+    <meta name="description" content="i.Core Identity &amp; Access Management Portal — Sign in or create an account">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
+    <link rel="stylesheet" th:href="@{/assets/icore.css}">
+
+    <style>
+        html, body { height: 100%; }
+        body {
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .auth-shell {
+            display: flex;
+            width: 880px;
+            min-height: 560px;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+        .auth-panel {
+            width: 300px; flex-shrink: 0;
+            background: var(--brand);
+            padding: 36px 30px;
+            display: flex; flex-direction: column;
+            position: relative; overflow: hidden;
+        }
+        .auth-panel::before {
+            content: "";
+            position: absolute;
+            width: 340px; height: 340px;
+            background: rgba(255,255,255,.07);
+            border-radius: 50%;
+            right: -160px; top: -100px;
+        }
+        .auth-panel::after {
+            content: "";
+            position: absolute;
+            width: 260px; height: 260px;
+            background: rgba(255,255,255,.05);
+            border-radius: 50%;
+            left: -80px; bottom: -80px;
+        }
+        .auth-brand { display: flex; align-items: center; gap: 9px; position: relative; z-index: 1; }
+        .auth-brand-icon {
+            width: 36px; height: 36px;
+            background: rgba(255,255,255,.18);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .auth-brand-icon i { color: #fff; font-size: 20px; }
+        .auth-brand-name { color: #fff; font-size: 18px; font-weight: 600; }
+        .auth-brand-ver  { color: rgba(255,255,255,.5); font-size: 11px; margin-top: 1px; }
+        .auth-headline { position: relative; z-index: 1; margin-top: 36px; }
+        .auth-headline h2 { color: #fff; font-size: 22px; font-weight: 600; line-height: 1.3; margin-bottom: 10px; }
+        .auth-headline p  { color: rgba(255,255,255,.7); font-size: 13px; line-height: 1.7; }
+        .auth-features { margin-top: 32px; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
+        .auth-feature { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.85); font-size: 13px; }
+        .auth-feature i { font-size: 16px; color: #A5F3FC; flex-shrink: 0; }
+        .auth-footer { margin-top: auto; position: relative; z-index: 1; color: rgba(255,255,255,.35); font-size: 11px; }
+        .auth-form-panel {
+            flex: 1;
+            background: var(--surface);
+            padding: 36px 38px;
+            display: flex; flex-direction: column;
+        }
+        .auth-tabs { display: flex; gap: 4px; margin-bottom: 28px; }
+        .auth-tab {
+            padding: 7px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 13.5px; font-weight: 500;
+            cursor: pointer;
+            border: 1px solid transparent;
+            color: var(--text-3);
+            background: transparent;
+            transition: all .15s;
+        }
+        .auth-tab.active { background: var(--brand-light); color: var(--brand); border-color: #C7D2FE; }
+        .auth-tab:hover:not(.active) { background: var(--surface-2); color: var(--text-2); }
+        .auth-form { display: none; flex-direction: column; gap: 0; }
+        .auth-form.active { display: flex; }
+        .form-title { font-size: 20px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+        .form-sub   { font-size: 13px; color: var(--text-3); margin-bottom: 22px; }
+        .ic-btn-auth { width: 100%; padding: 10px; justify-content: center; font-size: 14px; border-radius: var(--radius-sm); margin-top: 4px; }
+        .remember-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .remember-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); cursor: pointer; }
+        .remember-label input { accent-color: var(--brand); }
+        .forgot-link { font-size: 13px; color: var(--brand); font-weight: 500; }
+        .switch-text { text-align: center; font-size: 13px; color: var(--text-3); margin-top: 18px; }
+        .switch-text a { color: var(--brand); font-weight: 500; }
+        @media (max-width: 720px) {
+            .auth-shell  { flex-direction: column; width: 100%; max-width: 440px; }
+            .auth-panel  { width: 100%; min-height: auto; padding: 26px; }
+            .auth-features, .auth-headline h2 { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-shell">
+
+    <!-- Brand panel -->
+    <div class="auth-panel">
+        <div class="auth-brand">
+            <div class="auth-brand-icon"><i class="ti ti-cloud"></i></div>
+            <div>
+                <div class="auth-brand-name">i.Core</div>
+                <div class="auth-brand-ver">v1.2.0-STABLE</div>
+            </div>
+        </div>
+        <div class="auth-headline">
+            <h2>Identity &amp; Access Management</h2>
+            <p>Secure, permission-driven cloud portal for your team.</p>
+        </div>
+        <div class="auth-features">
+            <div class="auth-feature"><i class="ti ti-shield-check"></i><span>Permission-based access control</span></div>
+            <div class="auth-feature"><i class="ti ti-database"></i><span>DB-resolved role permissions</span></div>
+            <div class="auth-feature"><i class="ti ti-activity"></i><span>Real-time audit logging</span></div>
+            <div class="auth-feature"><i class="ti ti-lock"></i><span>CSRF &amp; session protection</span></div>
+            <div class="auth-feature"><i class="ti ti-cookie"></i><span>Secure session cookies</span></div>
+        </div>
+        <div class="auth-footer">&copy; 2025 i.Core Projects · Identity Core</div>
+    </div>
+
+    <!-- Form panel -->
+    <div class="auth-form-panel">
+
+        <div class="auth-tabs">
+            <button class="auth-tab" id="tab-login"    onclick="showForm('login')"   >Sign in</button>
+            <button class="auth-tab" id="tab-register" onclick="showForm('register')">Register</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div class="auth-form" id="form-login">
+            <div class="form-title">Welcome back</div>
+            <div class="form-sub">Sign in to your i.Core account</div>
+
+            <!-- Spring Security error -->
+            <div class="ic-alert ic-alert-error" th:if="${param.error}">
+                <i class="ti ti-alert-circle"></i>
+                <span th:text="${param.error[0] != null ? param.error[0] : 'Invalid email or password.'}">Invalid credentials.</span>
+            </div>
+            <!-- Logout success -->
+            <div class="ic-alert ic-alert-success" th:if="${param.logout}">
+                <i class="ti ti-circle-check"></i>
+                You've been signed out successfully.
+            </div>
+            <!-- Registration success -->
+            <div class="ic-alert ic-alert-success" th:if="${successMsg}">
+                <i class="ti ti-circle-check"></i>
+                <span th:text="${successMsg}"></span>
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="ic-form-group">
+                    <label class="ic-label" for="loginEmail">Email address</label>
+                    <div class="ic-input-icon">
+                        <i class="ti ti-mail"></i>
+                        <input type="email" class="ic-input" id="loginEmail" name="email"
+                               placeholder="you@example.com" required>
+                    </div>
+                </div>
+
+                <div class="ic-form-group">
+                    <label class="ic-label" for="loginPassword">Password</label>
+                    <div class="ic-input-icon" style="position:relative;">
+                        <i class="ti ti-lock"></i>
+                        <input type="password" class="ic-input" id="loginPassword" name="password"
+                               placeholder="Your password" required>
+                        <i class="ti ti-eye" id="togglePwd"
+                           style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
+                                  cursor:pointer;color:var(--text-3);font-size:16px;left:auto;"></i>
+                    </div>
+                </div>
+
+                <div class="remember-row">
+                    <label class="remember-label">
+                        <input type="checkbox" name="remember-me"> Remember me
+                    </label>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="ic-btn ic-btn-primary ic-btn-auth" id="btnSignIn">
+                    <i class="ti ti-login"></i> Sign in
+                </button>
+            </form>
+
+            <div class="switch-text">
+                Don't have an account?
+                <a href="#" onclick="showForm('register')">Create one</a>
+            </div>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div class="auth-form" id="form-register">
+            <div class="form-title">Create account</div>
+            <div class="form-sub">Join i.Core — you'll get USER role by default</div>
+
+            <div class="ic-alert ic-alert-error" th:if="${flashError}">
+                <i class="ti ti-alert-circle"></i>
+                <span th:text="${flashError}"></span>
+            </div>
+
+            <form th:action="@{/register}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="ic-form-group">
+                    <label class="ic-label" for="regName">Full name</label>
+                    <div class="ic-input-icon">
+                        <i class="ti ti-user"></i>
+                        <input type="text" class="ic-input" id="regName" name="name" placeholder="John Doe" required>
+                    </div>
+                </div>
+
+                <div class="ic-form-group">
+                    <label class="ic-label" for="regUsername">Username</label>
+                    <div class="ic-input-icon">
+                        <i class="ti ti-at"></i>
+                        <input type="text" class="ic-input" id="regUsername" name="username" placeholder="johndoe" required>
+                    </div>
+                </div>
+
+                <div class="ic-form-group">
+                    <label class="ic-label" for="regEmail">Email address</label>
+                    <div class="ic-input-icon">
+                        <i class="ti ti-mail"></i>
+                        <input type="email" class="ic-input" id="regEmail" name="email" placeholder="you@example.com" required>
+                    </div>
+                </div>
+
+                <div class="ic-form-group">
+                    <label class="ic-label" for="regPassword">Password</label>
+                    <div class="ic-input-icon">
+                        <i class="ti ti-lock"></i>
+                        <input type="password" class="ic-input" id="regPassword" name="password"
+                               placeholder="At least 6 characters" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="ic-btn ic-btn-primary ic-btn-auth" style="margin-top:4px;" id="btnRegister">
+                    <i class="ti ti-user-plus"></i> Create account
+                </button>
+            </form>
+
+            <div class="switch-text">
+                Already have an account?
+                <a href="#" onclick="showForm('login')">Sign in</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const initTab = /*[[${param.tab != null ? param.tab[0] : 'login'}]]*/ 'login';
+
+    function showForm(name) {
+        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('form-' + name).classList.add('active');
+        document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    showForm(initTab === 'register' ? 'register' : 'login');
+
+    const togglePwd = document.getElementById('togglePwd');
+    const pwdInput  = document.getElementById('loginPassword');
+    if (togglePwd && pwdInput) {
+        togglePwd.addEventListener('click', function () {
+            const isText = pwdInput.type === 'text';
+            pwdInput.type = isText ? 'password' : 'text';
+            togglePwd.className = isText ? 'ti ti-eye' : 'ti ti-eye-off';
+        });
+    }
+</script>
+
+</body>
+</html>
