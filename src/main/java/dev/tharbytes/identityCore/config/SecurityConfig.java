@@ -63,7 +63,7 @@ public class SecurityConfig {
                         // Permission-gated pages
                         .requestMatchers("/users", "/manage-user").hasAuthority("USER_READ")
                         .requestMatchers("/roles", "/manage-role").hasAuthority("ROLE_READ")
-                        .requestMatchers("/logs").hasAuthority("LOG_VIEW")
+                        .requestMatchers("/logs", "/log").hasAuthority("LOG_VIEW")
 
                         // API endpoints — checked in controller via UserService.hasPermission()
                         .requestMatchers("/auth/**").authenticated()
