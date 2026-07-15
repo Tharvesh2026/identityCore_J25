@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Identity Core — Cookie Policy</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
+
+    <link rel="stylesheet" th:href="@{/assets/icore.css}">
+
+    <style>
+        .legal-shell {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 48px 24px 96px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .legal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 36px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .legal-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #111827;
+            text-decoration: none;
+        }
+
+        .legal-brand-mark {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: #4f46e5;
+        }
+
+        .legal-header-links {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+        }
+
+        .legal-header-links a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .legal-title {
+            font-size: 30px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+
+        .legal-updated {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 36px;
+        }
+
+        .legal-section {
+            margin-bottom: 30px;
+        }
+
+        .legal-section h2 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        .legal-section p,
+        .legal-section li {
+            font-size: 14.5px;
+            line-height: 1.75;
+            color: #374151;
+        }
+
+        .legal-section ul {
+            margin-top: 10px;
+            padding-left: 22px;
+        }
+
+        .legal-section a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .legal-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 24px;
+            color: #4f46e5;
+            font-size: 13px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="legal-shell">
+
+    <div class="legal-header">
+        <a th:href="@{/}" class="legal-brand">
+            <span class="legal-brand-mark"></span>
+            Identity Core
+        </a>
+
+        <div class="legal-header-links">
+            <a th:href="@{/terms}">Terms</a>
+            <a th:href="@{/privacy}">Privacy</a>
+        </div>
+    </div>
+
+    <div class="legal-title">
+        Cookie Policy
+    </div>
+
+    <div class="legal-updated">
+        Effective:
+        <span th:text="${cookiePolicyUpdated}">
+            July 15, 2026
+        </span>
+    </div>
+
+    <div class="legal-section">
+        <p>
+            This Cookie Policy explains how <strong>Identity Core | Tharbytes.io</strong>
+            ("we", "our", or "us") uses cookies and similar technologies when you use
+            <a href="https://cloud.imtharvesh.me"
+               target="_blank"
+               rel="noopener noreferrer">cloud.imtharvesh.me</a>.
+        </p>
+
+        <p>
+            We use only cookies that are necessary for the secure operation of the
+            website and to provide the services you request. We do not use cookies
+            for analytics, advertising, marketing, or cross-site tracking.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <h2>1. Who We Are</h2>
+
+        <p>
+            <strong>Website:</strong>
+            <a href="https://cloud.imtharvesh.me"
+               target="_blank"
+               rel="noopener noreferrer">
+                cloud.imtharvesh.me
+            </a><br>
+
+            <strong>Website Name:</strong>
+            Identity Core | Tharbytes.io<br>
+
+            <strong>Location:</strong>
+            Tamil Nadu, India
+        </p>
+
+        <p>
+            <strong>Contact:</strong>
+            <a th:href="'mailto:' + ${contactEmail}"
+               th:text="${contactEmail}">
+                tharvesh2026@gmail.com
+            </a>
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <h2>2. What Are Cookies?</h2>
+
+        <p>
+            Cookies are small text files stored on your device when you visit a website.
+            They help websites function correctly, remember certain preferences, improve
+            reliability, and provide a secure browsing experience.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <h2>3. Cookies We Use</h2>
+
+        <p>
+            We use only <strong>essential cookies</strong> that are required for the
+            website to function properly.
+        </p>
+
+        <ul>
+            <li>Keeping you signed in while using the website.</li>
+            <li>Supporting secure account authentication.</li>
+            <li>Remembering your preferences where applicable.</li>
+            <li>Maintaining the security and proper functioning of the website.</li>
+        </ul>
+
+        <p>
+            These cookies are necessary to provide the services you request and cannot
+            be disabled through our website.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <h2>4. Third-Party Authentication</h2>
+
+        <p>
+            If you choose to authenticate using a third-party identity provider,
+            that provider may use cookies or similar technologies as part of its
+            authentication process. These technologies are governed by the provider's
+            own privacy and cookie policies.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <h2>5. Cookies We Do Not Use</h2>
+
+        <p>
+            We value your privacy. Our website does not use cookies for:
+        </p>
+
+        <ul>
+            <li>Analytics or visitor measurement.</li>
+            <li>Advertising or marketing.</li>
+            <li>Behavioral profiling.</li>
+            <li>Cross-site tracking.</li>
+        </ul>
+    </div>
+
+    <div class="legal-section">
+        <h2>6. Cookie Notice</h2>
+
+        <p>
+            We display a cookie notice to inform visitors about our use of essential
+            cookies. Because these cookies are required to provide the services you
+            request, they are used without requesting separate consent where permitted
+            by applicable law.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <h2>7. Managing Cookies</h2>
+
+        <p>
+            Most web browsers allow you to manage cookies through their settings.
+            Disabling essential cookies may affect the availability or functionality
+            of some parts of the website.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <h2>8. Changes to This Cookie Policy</h2>
+
+        <p>
+            We may update this Cookie Policy from time to time. Any changes will be
+            posted on this page together with a revised effective date.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <h2>9. Contact Us</h2>
+
+        <p>
+            If you have any questions about this Cookie Policy, please contact us at
+            <a th:href="'mailto:' + ${contactEmail}"
+               th:text="${contactEmail}">
+                tharvesh2026@gmail.com
+            </a>.
+        </p>
+    </div>
+
+    <a th:href="@{/login}" class="legal-back">
+        <i class="ti ti-arrow-left"></i>
+        Back to Login
+    </a>
+
+</div>
+
+</body>
+</html>

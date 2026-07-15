@@ -210,15 +210,28 @@
                 </div>
 
                 <div class="remember-row">
-                    <label class="remember-label">
-                        <input type="checkbox" name="remember-me"> Remember me
+                    <label for="remember-me" class="remember-label">
+                        <input type="checkbox" id="remember-me" name="remember-me" value="true">
+                        Remember me
                     </label>
+
                     <a href="#" class="forgot-link">Forgot password?</a>
                 </div>
+
+
 
                 <button type="submit" class="ic-btn ic-btn-primary ic-btn-auth" id="btnSignIn">
                     <i class="ti ti-login"></i> Sign in
                 </button>
+
+                <div style="text-align:center; margin-top:24px; font-size:12.5px; color:#9ca3af;">
+                    By continuing, you agree to our
+                    <a th:href="@{/terms}" style="color:#6b7280; text-decoration:underline;">Terms</a>
+                    and
+                    <a th:href="@{/privacy}" style="color:#6b7280; text-decoration:underline;">Privacy Policy</a>.
+                </div>
+
+                <div th:replace="~{fragments/cookie-notice :: cookieNotice}"></div>
             </form>
 
             <div class="oauth-divider">or continue with</div>

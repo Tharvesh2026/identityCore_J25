@@ -3,6 +3,7 @@ package dev.tharbytes.identityCore.config;
 import dev.tharbytes.identityCore.security.AppUserDetailsService;
 import dev.tharbytes.identityCore.security.CustomOAuth2UserService;
 import dev.tharbytes.identityCore.security.CustomOidcUserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,8 +15,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
@@ -26,6 +31,23 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomOidcUserService customOidcUserService;
 
+    // Loaded from application.properties / env var — NEVER hardcode this.
+    // Used to sign the persistent remember-me token; rotating it invalidates
+    // all existing "remember me" sessions app-wide.
+    @Value("${app.remember-me.key}")
+    private String rememberMeKey;
+
+    // false for local HTTP dev, true in production (HTTPS via tunnel/proxy).
+    // A "true" value here on a plain-HTTP origin makes the browser silently
+    // refuse to store/send the cookie — remember-me will look completely
+    // broken with no error anywhere.
+    @Value("${app.remember-me.secure-cookie:false}")
+    private boolean rememberMeSecureCookie;
+
+    // 14 days, in seconds. Overridable via application.properties.
+    @Value("${app.remember-me.validity-seconds:1209600}")
+    private int rememberMeValiditySeconds;
+
     public SecurityConfig(AppUserDetailsService userDetailsService,
                           CustomOAuth2UserService customOAuth2UserService,
                           CustomOidcUserService customOidcUserService) {
@@ -35,7 +57,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository tokenRepository) throws Exception {
         http
                 // ── CSRF ──────────────────────────────────────────────────────────
                 .csrf(csrf -> csrf
@@ -56,6 +78,7 @@ public class SecurityConfig {
                                 "/", "/login", "/register",
                                 "/user/login", "/user/register",
                                 "/oauth2/**", "/login/oauth2/**",
+                                "/terms", "/privacy", "/cookie-policy",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
                                 "/h2-console/**", "/error"
                         ).permitAll()
@@ -63,7 +86,7 @@ public class SecurityConfig {
                         // Permission-gated pages
                         .requestMatchers("/users", "/manage-user").hasAuthority("USER_READ")
                         .requestMatchers("/roles", "/manage-role").hasAuthority("ROLE_READ")
-                        .requestMatchers("/logs", "/log").hasAuthority("LOG_VIEW")
+                        .requestMatchers("/logs").hasAuthority("LOG_VIEW")
 
                         // API endpoints — checked in controller via UserService.hasPermission()
                         .requestMatchers("/auth/**").authenticated()
@@ -96,12 +119,24 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
+                // ── Remember Me (persistent token — revocable per device) ────────
+                .rememberMe(rememberMe -> rememberMe
+                        .key(rememberMeKey)
+                        .tokenRepository(tokenRepository)
+                        .tokenValiditySeconds(rememberMeValiditySeconds)
+                        .userDetailsService(userDetailsService)
+                        .rememberMeParameter("remember-me")     // matches the login form checkbox name
+                        .rememberMeCookieName("ICORE_REMEMBER_ME")
+                        .useSecureCookie(rememberMeSecureCookie) // true in prod (HTTPS), false for local HTTP dev
+                )
+
                 // ── Logout ────────────────────────────────────────────────────────
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=SUCCESS")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "ICORE_REMEMBER_ME")
+                        .clearAuthentication(true)
                         .permitAll()
                 )
 
@@ -112,6 +147,22 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    /**
+     * Persistent (DB-backed) remember-me token store. Unlike the simpler
+     * hash-based token, this lets you revoke a single device's "remember me"
+     * session without invalidating everyone else's — the standard enterprise
+     * approach. Requires the `persistent_logins` table (see accompanying SQL).
+     */
+    @Bean
+    public PersistentTokenRepository persistentTokenRepository(DataSource dataSource) {
+        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+        tokenRepository.setDataSource(dataSource);
+        // Table is created manually via SQL (see persistent_logins.sql) —
+        // do NOT set createTableOnStartup(true) here: it re-runs CREATE TABLE
+        // (no "IF NOT EXISTS") on every restart and will throw once the table exists.
+        return tokenRepository;
     }
 
     @Bean

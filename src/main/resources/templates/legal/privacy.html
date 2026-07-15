@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i.Core — Privacy Policy</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
+    <link rel="stylesheet" th:href="@{/assets/icore.css}">
+
+    <style>
+        .legal-shell { max-width: 780px; margin: 0 auto; padding: 48px 24px 96px; font-family: 'Inter', sans-serif; }
+        .legal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 36px; }
+        .legal-brand { display:flex; align-items:center; gap:10px; font-weight:600; font-size:16px; color:#111827; text-decoration:none; }
+        .legal-brand-mark { width:28px; height:28px; border-radius:6px; background:#4f46e5; }
+        .legal-title { font-size: 30px; font-weight: 700; color:#111827; margin-bottom: 6px; }
+        .legal-updated { font-size: 13px; color:#6b7280; margin-bottom: 36px; }
+        .legal-section { margin-bottom: 28px; }
+        .legal-section h2 { font-size: 17px; font-weight:600; color:#111827; margin-bottom:10px; }
+        .legal-section p, .legal-section li { font-size: 14.5px; line-height: 1.7; color:#374151; }
+        .legal-section ul { padding-left: 20px; margin-top: 6px; }
+        .legal-notice { background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:14px 16px; font-size:13px; color:#92400e; margin-bottom:32px; }
+        .legal-back { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#4f46e5; text-decoration:none; margin-top: 40px; }
+        .cookie-table { width:100%; border-collapse: collapse; margin-top: 12px; font-size: 13.5px; }
+        .cookie-table th, .cookie-table td { text-align:left; padding: 8px 10px; border-bottom: 1px solid #e5e7eb; }
+        .cookie-table th { color:#6b7280; font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; }
+        .cookie-table td { color:#374151; }
+        .cookie-table code { font-family:'JetBrains Mono', monospace; font-size:12.5px; background:#f3f4f6; padding:1px 5px; border-radius:4px; }
+    </style>
+</head>
+
+<body>
+
+<div class="legal-shell">
+
+    <div class="legal-header">
+        <a th:href="@{/}" class="legal-brand">
+            <span class="legal-brand-mark"></span>
+            i.Core
+        </a>
+        <a th:href="@{/terms}" style="font-size:13px; color:#4f46e5; text-decoration:none;">Terms &amp; Conditions →</a>
+        <a th:href="@{/cookie-policy}" style="font-size:13px; color:#4f46e5; text-decoration:none;">Cookie Policy →</a>
+    </div>
+
+    <div class="legal-title">Privacy Policy</div>
+    <div class="legal-updated">Last updated: <span th:text="${lastUpdated}">2026-07-14</span></div>
+
+    <div class="legal-notice">
+        <strong>Template notice:</strong> this document is a starting-point template, not legal advice.
+        Before relying on it for real users, have it reviewed by a qualified lawyer, particularly for
+        GDPR (if you have EU users) or CCPA (if you have California users) compliance obligations.
+    </div>
+
+    <div class="legal-section">
+        <h2>1. What We Collect</h2>
+        <p>When you create an account or sign in, we collect:</p>
+        <ul>
+            <li><strong>Email address</strong> — either entered directly, or provided by Google/GitHub during OAuth2/OIDC login.</li>
+            <li><strong>Display name</strong> — from your account or your identity provider's profile.</li>
+            <li><strong>Authentication method</strong> — whether you signed in with a password or via Google/GitHub.</li>
+            <li><strong>Role and permission assignments</strong>, for access control purposes.</li>
+            <li><strong>Application audit logs</strong> — timestamps, actions taken, and a correlation ID for each request, for security and troubleshooting.</li>
+        </ul>
+        <p>We do not request or store your Google/GitHub password — authentication with those providers happens entirely on their servers; we only receive a token confirming who you are.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2>2. Cookies We Use</h2>
+        <p>We use only the cookies strictly necessary to operate the Service. We do not use advertising or analytics cookies.</p>
+        <table class="cookie-table">
+            <tr><th>Cookie</th><th>Purpose</th><th>Lifespan</th></tr>
+            <tr><td><code>JSESSIONID</code></td><td>Keeps you signed in for your current browser session</td><td>Until browser closes</td></tr>
+            <tr><td><code>ICORE_REMEMBER_ME</code></td><td>Keeps you signed in across visits, only if you check "Remember Me"</td><td>Up to 14 days</td></tr>
+            <tr><td><code>XSRF-TOKEN</code></td><td>Protects you from cross-site request forgery attacks</td><td>Session</td></tr>
+        </table>
+        <p style="margin-top:10px;">
+            Because these cookies are strictly necessary for the Service to function (you cannot stay logged in
+            without them), we don't present a cookie "accept/reject" gate for them — this is consistent with
+            GDPR's ePrivacy guidance, which exempts strictly-necessary cookies from consent requirements. If we
+            ever introduce optional cookies (e.g. analytics), we will ask for your consent separately before
+            setting them.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <h2>3. How We Use Your Data</h2>
+        <ul>
+            <li>To authenticate you and maintain your session.</li>
+            <li>To enforce role-based access control across the application.</li>
+            <li>To maintain audit logs for security investigation and troubleshooting.</li>
+            <li>To communicate with you about your account, if necessary.</li>
+        </ul>
+        <p>We do not sell your data, and we do not share it with third parties except the identity providers you choose to authenticate with (Google, GitHub).</p>
+    </div>
+
+    <div class="legal-section">
+        <h2>4. Data Retention</h2>
+        <p>
+            Account data is retained for as long as your account is active. Audit log entries are retained for
+            a limited period for security purposes and are periodically purged. Remember-me tokens are deleted
+            when you log out, when they expire, or when revoked.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <h2>5. Your Rights</h2>
+        <p>Depending on your jurisdiction, you may have the right to:</p>
+        <ul>
+            <li>Request a copy of the personal data we hold about you.</li>
+            <li>Request correction or deletion of your data.</li>
+            <li>Withdraw consent for optional processing (where applicable).</li>
+        </ul>
+        <p>To exercise these rights, contact us using the details below.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2>6. Changes to This Policy</h2>
+        <p>
+            We may update this Privacy Policy from time to time. Material changes will be reflected by updating
+            the "Last updated" date above.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <h2>7. Contact</h2>
+        <p>
+            For privacy-related questions or requests, contact
+            <a th:href="'mailto:' + ${contactEmail}" th:text="${contactEmail}" style="color:#4f46e5;">support@tharbytes.io</a>.
+        </p>
+    </div>
+
+    <a th:href="@{/login}" class="legal-back">
+        <i class="ti ti-arrow-left"></i>
+        Back to login
+    </a>
+
+</div>
+
+</body>
+</html>
