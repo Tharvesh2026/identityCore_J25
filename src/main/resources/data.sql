@@ -73,3 +73,12 @@ INSERT INTO users (name, mail_id, username, password, role_id, status)
          '$2y$12$eVW59sNFHpTpO8.xnM4DCejsVGNs6fFSbKt22RPAZp14Qyq99A83m',
          r.id, 'ACTIVE'
   FROM roles r WHERE r.role_name = 'USER';
+
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id BIGSERIAL PRIMARY KEY,
+    token VARCHAR(64) NOT NULL UNIQUE,
+    user_id BIGINT NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN NOT NULL DEFAULT FALSE
+    );

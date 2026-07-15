@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS persistent_logins (
     last_used TIMESTAMP    NOT NULL
 );
 
+ALTER TABLE persistent_logins ENABLE ROW LEVEL SECURITY;
+
 -- Optional but recommended: speeds up the periodic cleanup query if you
 -- later add a scheduled job to purge stale remember-me tokens.
 CREATE INDEX IF NOT EXISTS idx_persistent_logins_username

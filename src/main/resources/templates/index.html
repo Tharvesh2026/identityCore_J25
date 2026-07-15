@@ -215,7 +215,7 @@
                         Remember me
                     </label>
 
-                    <a href="#" class="forgot-link">Forgot password?</a>
+                    <a th:href="@{/forgot-password}" class="forgot-link">Forgot password?</a>
                 </div>
 
 
@@ -233,16 +233,6 @@
 
                 <div th:replace="~{fragments/cookie-notice :: cookieNotice}"></div>
             </form>
-
-            <div class="oauth-divider">or continue with</div>
-            <div class="oauth-row">
-                <a th:href="@{/oauth2/authorization/google}" class="ic-btn-oauth" id="btnGoogle">
-                    <i class="ti ti-brand-google"></i> Google
-                </a>
-                <a th:href="@{/oauth2/authorization/github}" class="ic-btn-oauth" id="btnGithub">
-                    <i class="ti ti-brand-github"></i> GitHub
-                </a>
-            </div>
 
             <div class="switch-text">
                 Don't have an account?

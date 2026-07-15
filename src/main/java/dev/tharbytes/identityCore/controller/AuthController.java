@@ -9,8 +9,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AuthController {
 
     @GetMapping("/")
-    public String root() {
-        return "redirect:/login";
+    public String root(Authentication authentication) {
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            return "redirect:/welcome";
+        }
+        return "landing";
     }
 
     @GetMapping("/login")
