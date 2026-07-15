@@ -35,3 +35,4 @@ build/
 ### Properties File ###
 src/main/resources/application-postgres.properties
 src/main/resources/application.properties
+/logs
