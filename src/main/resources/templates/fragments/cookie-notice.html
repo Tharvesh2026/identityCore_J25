@@ -1,0 +1,66 @@
+<!-- fragments/cookie-notice.html -->
+<!-- Include in your base layout with: <div th:replace="~{fragments/cookie-notice :: cookieNotice}"></div> -->
+<!-- Typically placed just before </body> so it doesn't block page content. -->
+
+<div th:fragment="cookieNotice">
+
+    <div id="ic-cookie-notice"
+         style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999;
+                background:#111827; color:#e5e7eb; padding:16px 24px;
+                box-shadow: 0 -4px 16px rgba(0,0,0,0.15);
+                font-family:'Inter', sans-serif; font-size:13.5px;">
+
+        <div style="max-width:1100px; margin:0 auto; display:flex; align-items:center;
+                    justify-content:space-between; gap:24px; flex-wrap:wrap;">
+
+            <div style="flex:1; min-width:260px; line-height:1.6;">
+                <i class="ti ti-cookie" style="margin-right:6px; color:#9ca3af;"></i>
+
+                We use only essential cookies required to keep you signed in, remember your login (if you choose), support secure authentication (including Google and GitHub sign-in), and maintain the security and functionality of this website. We do not use analytics, advertising, or any other cookies.
+
+                Read our
+                <a th:href="@{/privacy}" style="color:#93c5fd;">Privacy Policy</a>
+                and
+                <a th:href="@{/cookie-policy}" style="color:#93c5fd;">Cookie Policy</a>.
+            </div>
+
+            <button id="ic-cookie-notice-ack"
+                    style="background:#4f46e5; color:#fff; border:none; padding:9px 18px;
+                           border-radius:6px; font-size:13px; font-weight:500; cursor:pointer;
+                           white-space:nowrap;">
+                Got it
+            </button>
+
+        </div>
+    </div>
+
+    <script th:inline="none">
+        (function () {
+            var STORAGE_KEY = "icore_cookie_notice_ack";
+            var banner = document.getElementById("ic-cookie-notice");
+            var ackBtn = document.getElementById("ic-cookie-notice-ack");
+
+            function hasAcknowledged() {
+                try {
+                    return localStorage.getItem(STORAGE_KEY) === "1";
+                } catch (e) {
+                    // localStorage unavailable (privacy mode, etc.) — fall back to
+                    // showing the notice every time rather than crashing.
+                    return false;
+                }
+            }
+
+            function acknowledge() {
+                try { localStorage.setItem(STORAGE_KEY, "1"); } catch (e) { /* ignore */ }
+                banner.style.display = "none";
+            }
+
+            if (!hasAcknowledged()) {
+                banner.style.display = "block";
+            }
+
+            ackBtn.addEventListener("click", acknowledge);
+        })();
+    </script>
+
+</div>
