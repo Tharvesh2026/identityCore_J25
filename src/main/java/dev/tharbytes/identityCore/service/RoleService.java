@@ -30,28 +30,40 @@ public class RoleService {
 
     public RoleEntity getById(Long id) {
         return roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+                .orElseThrow(() -> {
+                    log.warn("Role [{}] not found.", id);
+                    return new ResourceNotFoundException("Role not found");
+                });
     }
 
     @Transactional
     public RoleEntity createRole(String roleName) {
         String sanitized = ValidationUtil.sanitizeRoleName(roleName);
-        if (sanitized.isBlank()) throw new ValidationException("Role name is required");
+        if (sanitized.isBlank()) {
+            log.warn("Role creation validation failed: role name is required.");
+            throw new ValidationException("Role name is required");
+        }
         if (roleRepository.existsByRoleName(sanitized)) {
+            log.warn("Role creation failed: role [{}] already exists.", sanitized);
             throw new ValidationException("Role already exists: " + sanitized);
         }
         // Grant PROFILE_READ by default
         PermissionEntity profileRead = permissionRepository.findByPermissionKey("PROFILE_READ").orElse(null);
         RoleEntity role = new RoleEntity(sanitized, "ACTIVE");
         if (profileRead != null) role.getPermissions().add(profileRead);
-        return roleRepository.save(role);
+        RoleEntity saved = roleRepository.save(role);
+        log.info("Role [{}] created successfully.", saved.getId());
+        return saved;
     }
 
     @Transactional
     public void renameRole(Long roleId, String newName) {
         RoleEntity role = getById(roleId);
         String sanitized = ValidationUtil.sanitizeRoleName(newName);
-        if (sanitized.isBlank()) throw new ValidationException("Role name is required");
+        if (sanitized.isBlank()) {
+            log.warn("Role rename validation failed for role [{}]: role name is required.", roleId);
+            throw new ValidationException("Role name is required");
+        }
         role.setRoleName(sanitized);
         roleRepository.save(role);
         log.info("Role {} renamed to {}", roleId, sanitized);

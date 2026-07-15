@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>i.Core — Audit Logs</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
+    <link rel="stylesheet" th:href="@{/assets/icore.css}">
+</head>
+
+<body>
+
+<div class="ic-shell">
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="ic-main">
+
+        <!-- Top -->
+        <div class="ic-topbar">
+            <div class="ic-breadcrumb">
+                <span>i.Core</span>
+                <span class="ic-breadcrumb-sep">/</span>
+                <span>Audit Logs</span>
+            </div>
+
+            <a th:href="@{/log(view='raw')}" class="ic-btn">
+                <i class="ti ti-file-text"></i>
+                Raw Log
+            </a>
+        </div>
+
+        <div class="ic-content">
+
+            <div class="ic-page-header">
+                <div>
+                    <div class="ic-page-title">Application Audit Logs</div>
+                    <div class="ic-page-sub">
+                        Authentication events, security activity and application logs.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metrics -->
+
+            <div class="ic-grid-5" style="margin-bottom:22px;">
+
+                <div class="ic-metric">
+                    <div class="ic-metric-label">
+                        <i class="ti ti-list-details"></i>
+                        Total
+                    </div>
+                    <div class="ic-metric-value"
+                         th:text="${logStats.totalEvents}">0</div>
+                </div>
+
+                <div class="ic-metric">
+                    <div class="ic-metric-label">
+                        <i class="ti ti-key"></i>
+                        Logins
+                    </div>
+                    <div class="ic-metric-value"
+                         th:text="${logStats.loginEvents}">0</div>
+                </div>
+
+                <div class="ic-metric">
+                    <div class="ic-metric-label">
+                        <i class="ti ti-brand-google"></i>
+                        OAuth
+                    </div>
+                    <div class="ic-metric-value"
+                         th:text="${logStats.oauthLogins}">0</div>
+                </div>
+
+                <div class="ic-metric">
+                    <div class="ic-metric-label">
+                        <i class="ti ti-alert-triangle"></i>
+                        Warnings
+                    </div>
+                    <div class="ic-metric-value"
+                         th:text="${logStats.warnings}">0</div>
+                </div>
+
+                <div class="ic-metric">
+                    <div class="ic-metric-label">
+                        <i class="ti ti-circle-x"></i>
+                        Errors
+                    </div>
+                    <div class="ic-metric-value"
+                         th:text="${logStats.errors}">0</div>
+                </div>
+
+            </div>
+
+            <!-- Toolbar -->
+
+            <div class="log-filter-bar">
+
+                <div class="ic-search log-search-wrap">
+                    <i class="ti ti-search"></i>
+                    <input
+                            id="logSearch"
+                            placeholder="Search logs... (current page only)">
+                </div>
+
+                <select class="ic-input ic-select" id="severityFilter" style="width:180px;">
+                    <option value="">All Severity</option>
+                    <option>INFO</option>
+                    <option>WARN</option>
+                    <option>ERROR</option>
+                    <option>DEBUG</option>
+                </select>
+
+            </div>
+
+            <!-- Empty -->
+
+            <div th:if="${#lists.isEmpty(logEntries)}" class="log-empty">
+
+                <i class="ti ti-file-search"></i>
+
+                <div class="log-empty-title">
+                    No log entries found
+                </div>
+
+                <div>
+                    The application log is empty.
+                </div>
+
+            </div>
+
+            <!-- Logs -->
+
+            <div th:each="entry : ${logEntries}"
+                 class="log-item"
+                 th:data-severity="${entry.severity}"
+                 th:data-search="${entry.message}">
+
+                <div class="log-card"
+                     th:classappend="' lc-' + ${entry.colorClass}">
+
+                    <div class="log-card-header">
+
+                        <div class="log-card-left">
+
+                            <div class="log-icon"
+                                 th:classappend="' li-' + ${entry.colorClass}">
+                                <i th:class="${entry.eventIcon}"></i>
+                            </div>
+
+                            <div class="log-card-meta">
+
+                                <div class="log-event-label"
+                                     th:text="${entry.eventLabel}">
+                                </div>
+
+                                <div class="log-event-sub">
+
+                                    <span th:text="${entry.formattedDate}"></span>
+
+                                    •
+
+                                    <span th:text="${entry.formattedTime}"></span>
+
+                                    <span class="log-severity-tag"
+                                          th:classappend="${
+                                          entry.severity=='ERROR'}?' lst-error':
+                                          (${entry.severity=='WARN'}?' lst-warning':' lst-info')"
+                                          th:text="${entry.severity}">
+                                    </span>
+
+                                    <span
+                                            th:if="${entry.provider!=null}"
+                                            class="log-provider-tag"
+                                            th:text="${entry.provider}">
+                                    </span>
+
+                                    <span
+                                            th:if="${entry.user!=null}">
+                                        <i class="ti ti-user"></i>
+                                        <span th:text="${entry.user}"></span>
+                                    </span>
+
+                                    <span class="log-corr-tag"
+                                          th:if="${entry.correlationId!=null and entry.correlationId!='N/A'}"
+                                          style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#9ca3af;"
+                                          th:text="${'#' + (entry.correlationId.length() >= 8 ? #strings.substring(entry.correlationId, 0, 8) : entry.correlationId)}">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="log-card-right">
+
+                            <button
+                                    class="log-details-toggle"
+                                    onclick="toggleDetails(this)">
+
+                                <i class="ti ti-chevron-down"></i>
+
+                                Details
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="log-details-panel">
+
+                        <div class="log-detail-grid">
+
+                            <div class="log-detail-key">Component</div>
+                            <div class="log-detail-val"
+                                 th:text="${entry.logger}"></div>
+
+                            <div class="log-detail-key">Correlation ID</div>
+                            <div class="log-detail-val" style="font-family:'JetBrains Mono',monospace; font-size:12px;"
+                                 th:text="${entry.correlationId}"></div>
+
+                            <div class="log-detail-key"
+                                 th:if="${entry.userId!=null}">
+                                User ID
+                            </div>
+                            <div class="log-detail-val"
+                                 th:if="${entry.userId!=null}"
+                                 th:text="${entry.userId}"></div>
+
+                            <div class="log-detail-key"
+                                 th:if="${entry.endpoint!=null}">
+                                Endpoint
+                            </div>
+
+                            <div class="log-detail-val"
+                                 th:if="${entry.endpoint!=null}"
+                                 th:text="${entry.endpoint}">
+                            </div>
+
+                            <div class="log-detail-key"
+                                 th:if="${entry.extra!=null}">
+                                Extra
+                            </div>
+
+                            <div class="log-detail-val"
+                                 th:if="${entry.extra!=null}"
+                                 th:text="${entry.extra}">
+                            </div>
+
+                            <div class="log-detail-msg"
+                                 th:text="${entry.message}">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Pagination -->
+
+            <div th:if="${totalItems > 0}"
+                 class="ic-pagination"
+                 style="display:flex; align-items:center; justify-content:space-between; margin-top:20px; padding-top:16px; border-top:1px solid #e5e7eb;">
+
+                <div class="ic-pagination-info" style="font-size:13px; color:#6b7280;">
+                    Showing
+                    <strong th:text="${currentPage * pageSize + 1}">1</strong>
+                    –
+                    <strong th:text="${currentPage * pageSize + logEntries.size()}">10</strong>
+                    of
+                    <strong th:text="${totalItems}">0</strong>
+                    entries
+                </div>
+
+                <div class="ic-pagination-controls" style="display:flex; align-items:center; gap:10px;">
+
+                    <a th:if="${hasPrev}"
+                       th:href="@{/log(page=${currentPage - 1})}"
+                       class="ic-btn">
+                        <i class="ti ti-chevron-left"></i>
+                        Prev
+                    </a>
+                    <span th:unless="${hasPrev}"
+                          class="ic-btn"
+                          style="opacity:0.4; pointer-events:none;">
+                        <i class="ti ti-chevron-left"></i>
+                        Prev
+                    </span>
+
+                    <span style="font-size:13px; color:#374151; white-space:nowrap;">
+                        Page <strong th:text="${currentPage + 1}">1</strong> of
+                        <strong th:text="${totalPages}">1</strong>
+                    </span>
+
+                    <a th:if="${hasNext}"
+                       th:href="@{/log(page=${currentPage + 1})}"
+                       class="ic-btn">
+                        Next
+                        <i class="ti ti-chevron-right"></i>
+                    </a>
+                    <span th:unless="${hasNext}"
+                          class="ic-btn"
+                          style="opacity:0.4; pointer-events:none;">
+                        Next
+                        <i class="ti ti-chevron-right"></i>
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+    function toggleDetails(btn){
+
+        const panel = btn.closest(".log-card")
+            .querySelector(".log-details-panel");
+
+        panel.classList.toggle("open");
+
+        btn.querySelector("i").classList.toggle("ti-chevron-up");
+
+    }
+
+    // NOTE: search/severity filtering below only operates on the entries
+    // rendered for the CURRENT page (10 items), since pagination is server-side.
+    // See chat for the option to move filtering server-side across the full log.
+    const search=document.getElementById("logSearch");
+    const severity=document.getElementById("severityFilter");
+
+    function filterLogs(){
+
+        const q=search.value.toLowerCase();
+        const s=severity.value;
+
+        document.querySelectorAll(".log-item").forEach(item=>{
+
+            const text=item.dataset.search.toLowerCase();
+            const sev=item.dataset.severity;
+
+            const okText=text.includes(q);
+            const okSev=s===""||sev===s;
+
+            item.style.display=(okText&&okSev)?"block":"none";
+
+        });
+
+    }
+
+    search.addEventListener("input",filterLogs);
+    severity.addEventListener("change",filterLogs);
+
+</script>
+
+</body>
+</html>

@@ -12,7 +12,7 @@ public class AuthController {
         return "redirect:/login";
     }
 
-    // Show login page 
+    // Show login page
     @GetMapping("/login")
     public String loginPage() {
         return "index";

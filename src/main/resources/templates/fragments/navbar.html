@@ -65,9 +65,16 @@
     <div class="ic-nav-section">System</div>
 
     <a sec:authorize="hasAuthority('LOG_VIEW')"
-       th:href="@{/logs}"
+       th:href="@{/log}"
+       th:classappend="${currentUri == '/log'} ? 'active'"
        class="ic-nav-item">
         <i class="ti ti-file-description"></i> Audit Logs
+    </a>
+
+    <a th:href="@{/swagger-ui/index.html}"
+       th:classappend="${currentUri == '/swagger-ui/index.html'} ? 'active'"
+       class="ic-nav-item">
+        <i class="ti ti-document"></i> Api Docs
     </a>
 
     <a th:href="@{/settings}"

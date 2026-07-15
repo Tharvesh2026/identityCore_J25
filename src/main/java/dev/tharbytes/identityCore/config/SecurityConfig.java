@@ -1,6 +1,8 @@
 package dev.tharbytes.identityCore.config;
 
 import dev.tharbytes.identityCore.security.AppUserDetailsService;
+import dev.tharbytes.identityCore.security.CustomOAuth2UserService;
+import dev.tharbytes.identityCore.security.CustomOidcUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,74 +23,93 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 public class SecurityConfig {
 
     private final AppUserDetailsService userDetailsService;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOidcUserService customOidcUserService;
 
-    public SecurityConfig(AppUserDetailsService userDetailsService) {
+    public SecurityConfig(AppUserDetailsService userDetailsService,
+                          CustomOAuth2UserService customOAuth2UserService,
+                          CustomOidcUserService customOidcUserService) {
         this.userDetailsService = userDetailsService;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.customOidcUserService = customOidcUserService;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // ── CSRF ──────────────────────────────────────────────────────────
-            .csrf(csrf -> csrf
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                .ignoringRequestMatchers(
-                    "/h2-console/**",
-                    "/user/**",
-                    "/auth/**"
+                // ── CSRF ──────────────────────────────────────────────────────────
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                        .ignoringRequestMatchers(
+                                "/h2-console/**",
+                                "/user/**",
+                                "/auth/**"
+                        )
                 )
-            )
 
-            .headers(h -> h.frameOptions(fo -> fo.sameOrigin()))
+                .headers(h -> h.frameOptions(fo -> fo.sameOrigin()))
 
-            .authorizeHttpRequests(auth -> auth
-                // Public
-                .requestMatchers(
-                    "/", "/login", "/register",
-                    "/user/login", "/user/register",
-                    "/css/**", "/js/**", "/images/**", "/assets/**",
-                    "/h2-console/**", "/error"
-                ).permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        // Public
+                        .requestMatchers(
+                                "/", "/login", "/register",
+                                "/user/login", "/user/register",
+                                "/oauth2/**", "/login/oauth2/**",
+                                "/css/**", "/js/**", "/images/**", "/assets/**",
+                                "/h2-console/**", "/error"
+                        ).permitAll()
 
-                // Permission-gated pages
-                .requestMatchers("/users", "/manage-user").hasAuthority("USER_READ")
-                .requestMatchers("/roles", "/manage-role").hasAuthority("ROLE_READ")
-                .requestMatchers("/logs").hasAuthority("LOG_VIEW")
+                        // Permission-gated pages
+                        .requestMatchers("/users", "/manage-user").hasAuthority("USER_READ")
+                        .requestMatchers("/roles", "/manage-role").hasAuthority("ROLE_READ")
+                        .requestMatchers("/logs", "/log").hasAuthority("LOG_VIEW")
 
-                // API endpoints — checked in controller via UserService.hasPermission()
-                .requestMatchers("/auth/**").authenticated()
-                .requestMatchers("/user/**").authenticated()
+                        // API endpoints — checked in controller via UserService.hasPermission()
+                        .requestMatchers("/auth/**").authenticated()
+                        .requestMatchers("/user/**").authenticated()
 
-                // Everything else needs authentication
-                .anyRequest().authenticated()
-            )
+                        // Everything else needs authentication
+                        .anyRequest().authenticated()
+                )
 
-            // ── Form login ────────────────────────────────────────────────────
-            .formLogin(form -> form
-                .loginPage("/login")
-                .loginProcessingUrl("/login")
-                .usernameParameter("email")
-                .passwordParameter("password")
-                .defaultSuccessUrl("/welcome", true)
-                .failureUrl("/login?error=Invalid+email+or+password")
-                .permitAll()
-            )
+                // ── Form login ────────────────────────────────────────────────────
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/welcome", true)
+                        .failureUrl("/login?error=Invalid+email+or+password")
+                        .permitAll()
+                )
 
-            // ── Logout ────────────────────────────────────────────────────────
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout=SUCCESS")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll()
-            )
+                // ── OAuth2 login (Google / GitHub) ───────────────────────────────
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                                .oidcUserService(customOidcUserService)
+                        )
+                        .defaultSuccessUrl("/welcome", true)
+                        .failureUrl("/login?error=OAuth+authentication+failed")
+                        .permitAll()
+                )
 
-            // ── Session management ────────────────────────────────────────────
-            .sessionManagement(session -> session
-                .maximumSessions(1)
-                .expiredUrl("/login?error=Session+expired.+Please+login+again.")
-            );
+                // ── Logout ────────────────────────────────────────────────────────
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=SUCCESS")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                )
+
+                // ── Session management ────────────────────────────────────────────
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .expiredUrl("/login?error=Session+expired.+Please+login+again.")
+                );
 
         return http.build();
     }

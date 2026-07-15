@@ -33,7 +33,7 @@ public class RoleController {
         model.addAttribute("roles", roleService.getAllRoles());
 
         UserEntity current = authHelper.requireCurrentUser();
-        model.addAttribute("user", current);  
+        model.addAttribute("user", current);
         return "roles";
     }
 
@@ -41,10 +41,12 @@ public class RoleController {
     @PostMapping("/roles")
     public String createRole(@RequestParam String roleName, RedirectAttributes ra) {
         if (roleName == null || roleName.isBlank()) {
+            log.warn("Role creation validation failed: role name is required.");
             ra.addFlashAttribute("error", "Role name is required");
             return "redirect:/roles";
         }
         roleService.createRole(roleName.trim().toUpperCase());
+        log.info("Role [{}] created successfully.", roleName.trim().toUpperCase());
         ra.addFlashAttribute("success", "Role created successfully");
         return "redirect:/roles";
     }
@@ -56,6 +58,7 @@ public class RoleController {
             @RequestParam String roleName,
             RedirectAttributes ra) {
         roleService.renameRole(roleId, roleName);
+        log.info("Role [{}] renamed successfully to [{}].", roleId, roleName);
         ra.addFlashAttribute("success", "Role renamed successfully");
         return "redirect:/roles";
     }
@@ -67,6 +70,7 @@ public class RoleController {
             @RequestParam String status,
             RedirectAttributes ra) {
         roleService.updateStatus(roleId, status);
+        log.info("Role [{}] status updated to [{}].", roleId, status);
         ra.addFlashAttribute("success", "Role status updated");
         return "redirect:/roles";
     }
@@ -96,6 +100,7 @@ public class RoleController {
             @RequestParam(required = false) List<Long> permissionIds,
             RedirectAttributes ra) {
         roleService.updatePermissions(roleId, permissionIds);
+        log.info("Permissions updated successfully for role [{}].", roleId);
         ra.addFlashAttribute("success", "Permissions updated successfully");
         return "redirect:/manage-role?id=" + roleId;
     }

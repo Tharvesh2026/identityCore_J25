@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>dev.tharbytes</groupId>
 	<artifactId>identityCore</artifactId>
-	<version>2.0-stable</version>
+	<version>2.1c</version>
 	<name>identityCore</name>
 	<description>i.Core — Identity &amp; Access Management Portal (Spring Boot + H2)</description>
 
@@ -55,11 +55,34 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
+		<!-- Spring Security OAuth2 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
 		<!-- Thymeleaf + Security extras (sec:authorize) -->
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
 			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
 		</dependency>
+
+		<!-- Swagger-Doc UI -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+
+		<!--Lombok-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.46</version>
+			<scope>compile</scope>
+		</dependency>
+
 
 		<!-- Spring Data JPA -->
 		<dependency>
