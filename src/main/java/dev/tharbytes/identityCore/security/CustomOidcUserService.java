@@ -1,6 +1,8 @@
 package dev.tharbytes.identityCore.security;
 
 import dev.tharbytes.identityCore.entity.UserEntity;
+import dev.tharbytes.identityCore.service.EmailService;
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -25,12 +28,14 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
 
     private final OAuth2UserProvisioner provisioner;
     private final OidcUserService delegate = new OidcUserService();
+    private final EmailService emailService;
 
     private static final Logger log =
             LoggerFactory.getLogger(AppUserDetailsService.class);
 
-    public CustomOidcUserService(OAuth2UserProvisioner provisioner) {
+    public CustomOidcUserService(OAuth2UserProvisioner provisioner, EmailService emailService) {
         this.provisioner = provisioner;
+        this.emailService = emailService;
     }
 
     @Override
@@ -60,6 +65,14 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         List<SimpleGrantedAuthority> authorities = provisioner.authoritiesFor(user);
 
         log.info("OIDC login successful via provider [{}] for user [{}].", registrationId, email);
+
+        try {
+            emailService.inviteMail(email);
+        } catch (IOException e) {
+            log.error("Invite Mail not send, {}",e.getMessage());
+        } catch (MessagingException e) {
+            log.error("Invite Mail not send, {}",e.getMessage());
+        }
 
         return new DefaultOidcUser(authorities, oidcUser.getIdToken(), oidcUser.getUserInfo(), "email");
     }
