@@ -8,12 +8,14 @@ import dev.tharbytes.identityCore.exception.ValidationException;
 import dev.tharbytes.identityCore.security.AppUserDetailsService;
 import dev.tharbytes.identityCore.security.AuthHelper;
 import dev.tharbytes.identityCore.service.UserService;
+import jakarta.mail.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,7 +74,8 @@ public class UserApiController {
 
     /** POST /user/register — register new user */
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<UserResponse>> register(@RequestBody RegisterRequest req) {
+    public ResponseEntity<ApiResponse<UserResponse>> register(@RequestBody RegisterRequest req)
+            throws MessagingException, IOException {
         log.info("User registration request received for email [{}].", req.getEmail());
 
         if (req.getName() == null || req.getName().isBlank()) {
