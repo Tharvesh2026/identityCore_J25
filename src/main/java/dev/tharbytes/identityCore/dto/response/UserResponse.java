@@ -1,6 +1,8 @@
 package dev.tharbytes.identityCore.dto.response;
 
 import dev.tharbytes.identityCore.entity.UserEntity;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserResponse {
     private Long id;
@@ -9,26 +11,36 @@ public class UserResponse {
     private String username;
     private String role;
     private String status;
+    private List<String> permissions;
 
     public UserResponse() {}
 
-    public UserResponse(Long id, String name, String email, String username, String role, String status) {
+    public UserResponse(Long id, String name, String email, String username, String role, String status, List<String> permissions) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.username = username;
         this.role = role;
         this.status = status;
+        this.permissions = permissions;
     }
 
     public static UserResponse from(UserEntity u) {
+        List<String> perms = null;
+        if (u.getRole() != null && u.getRole().getPermissions() != null) {
+            perms = u.getRole().getPermissions().stream()
+                    .map(p -> p.getPermissionKey())
+                    .sorted()
+                    .collect(Collectors.toList());
+        }
         return new UserResponse(
             u.getId(),
             u.getName(),
             u.getMailId(),
             u.getUsername(),
             u.getRoleName(),
-            u.getStatus()
+            u.getStatus(),
+            perms
         );
     }
 
@@ -78,5 +90,13 @@ public class UserResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<String> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(List<String> permissions) {
+        this.permissions = permissions;
     }
 }

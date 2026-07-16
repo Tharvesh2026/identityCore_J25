@@ -253,7 +253,12 @@
         else                   ringFg.style.stroke = 'var(--brand)';
         if (remaining <= 0) {
             clearInterval(countdownTimer);
-            window.location.href = "/login?error=Session+expired.+Please+login+again.";
+            const logoutForm = document.querySelector('form[action*="/logout"]');
+            if (logoutForm) {
+                logoutForm.submit();
+            } else {
+                window.location.href = "/login?error=Session+expired.+Please+login+again.";
+            }
         }
         remaining--;
     }
