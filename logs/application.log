@@ -1384,9 +1384,7 @@ Caused by: org.postgresql.util.PSQLException: FATAL: (EMAXCONNSESSION) max clien
 2026-07-16T08:34:21.005Z INFO  identityCore [o.s.b.d.a.ConditionEvaluationDeltaLoggingListener] [CorrId=N/A] [UserId=anonymous] Condition evaluation delta:
 
 
-==========================
 CONDITION EVALUATION DELTA
-==========================
 
 
 Positive matches:
@@ -1456,9 +1454,7 @@ Unconditional classes:
 2026-07-16T08:34:25.479Z INFO  identityCore [o.s.b.d.a.ConditionEvaluationDeltaLoggingListener] [CorrId=N/A] [UserId=anonymous] Condition evaluation delta:
 
 
-==========================
 CONDITION EVALUATION DELTA
-==========================
 
 
 Positive matches:
