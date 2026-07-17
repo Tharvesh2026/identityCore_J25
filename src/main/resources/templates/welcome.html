@@ -168,7 +168,12 @@
         countdownEl.textContent = fmt(timeout);
         if (timeout <= 0) {
             clearInterval(timer);
-            window.location.href = "/login?error=Session+expired.+Please+login+again.";
+            const logoutForm = document.querySelector('form[action*="/logout"]');
+            if (logoutForm) {
+                logoutForm.submit();
+            } else {
+                window.location.href = "/login?error=Session+expired.+Please+login+again.";
+            }
             return;
         }
         timeout--;

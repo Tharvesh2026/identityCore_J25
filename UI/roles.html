@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i.Core — Roles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link class="icon-link" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
+    <link rel="stylesheet" href="assets/icore.css">
+</head>
+<body>
+
+<div class="d-flex min-vh-100">
+
+    <!-- Dynamic Sidebar -->
+    <aside class="sidebar-aside" id="sidebar"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content flex-grow-1 p-4">
+        
+        <!-- Topbar -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div class="breadcrumb-container mb-0">
+                <span>i.Core</span>
+                <span class="breadcrumb-sep">/</span>
+                <span class="text-white">Roles</span>
+            </div>
+        </div>
+
+        <!-- Flash messages -->
+        <div id="alert-box" class="alert d-none align-items-center gap-2 py-2 px-3 small mb-4" role="alert">
+            <i id="alert-icon" class="ti"></i>
+            <span id="alert-msg"></span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="mb-4">
+            <h2 class="page-title">Role Management</h2>
+            <p class="page-sub">Create custom roles and manage permission groups.</p>
+        </div>
+
+        <!-- Create new role panel -->
+        <div class="card p-4 mb-4">
+            <h5 class="card-title fs-6 fw-semibold mb-3 d-flex align-items-center gap-2">
+                <i class="ti ti-plus-circle text-primary"></i> Create a New Role
+            </h5>
+            <form onsubmit="handleCreateRole(event)">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-9 col-sm-8">
+                        <label class="form-label">Role name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-shield"></i></span>
+                            <input type="text" id="new-role-name" class="form-control" placeholder="e.g. SUPPORT_ENGINEER" required style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase().replace(/\s/g,'_')">
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-4">
+                        <button type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="height:38px;">
+                            <i class="ti ti-plus"></i> Create role
+                        </button>
+                    </div>
+                </div>
+                <div class="small text-secondary mt-2">
+                    New roles are assigned <code class="text-white bg-dark border border-secondary border-opacity-25 px-1 py-0.5 rounded">PROFILE_READ</code> permission by default.
+                </div>
+            </form>
+        </div>
+
+        <!-- Roles Table -->
+        <div class="card p-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>ID</th>
+                            <th>Status</th>
+                            <th>Permissions</th>
+                            <th>Rename</th>
+                            <th>Update status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roles-tbody">
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-secondary">
+                                <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div><br>
+                                Loading system roles...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/navbar.js"></script>
+<script>
+    window.addEventListener("DOMContentLoaded", async () => {
+        // Authenticate user
+        const user = await requireAuth();
+        if (!user) return;
+
+        // Render sidebar
+        initNavbar(user);
+
+        // Fetch roles
+        await loadRoles();
+    });
+
+    async function loadRoles() {
+        try {
+            const res = await apiFetch("/auth/roles");
+            if (res && res.success) {
+                renderRolesTable(res.data || []);
+            }
+        } catch (e) {
+            console.error("Failed to load roles", e);
+            document.getElementById("roles-tbody").innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-danger">
+                        <i class="ti ti-alert-triangle fs-4 mb-2"></i><br>
+                        Failed to load system roles: ${e.message}
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    function renderRolesTable(roles) {
+        const tbody = document.getElementById("roles-tbody");
+        tbody.innerHTML = "";
+
+        if (roles.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-secondary">
+                        No roles found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        roles.forEach(r => {
+            const tr = document.createElement("tr");
+
+            // Build Permissions pills
+            let permsHtml = `<div class="d-flex flex-wrap gap-1" style="max-width:280px;">`;
+            if (r.permissions && r.permissions.length > 0) {
+                r.permissions.forEach(p => {
+                    permsHtml += `<span class="theme-tag tag-generic" style="font-size:10px; padding:1px 5px; font-family:var(--mono);">${p}</span>`;
+                });
+            } else {
+                permsHtml += `<span class="small text-secondary">None</span>`;
+            }
+            permsHtml += `</div>`;
+
+            // Status tag
+            const isActive = "ACTIVE".equalsIgnoreCase(r.status);
+            const statusClass = isActive ? "tag-active" : "tag-inactive";
+            const statusIcon = isActive ? '<i class="ti ti-circle-check"></i>' : '<i class="ti ti-circle-x"></i>';
+
+            // Inline Rename form
+            const renameFormHtml = `
+                <form onsubmit="handleRenameRole(event, ${r.id})" class="d-flex gap-2 align-items-center m-0">
+                    <input type="text" id="rename-input-${r.id}" class="form-control py-1 px-2 font-monospace" value="${r.roleName}" required style="font-size:12px; height:28px; width:130px; text-transform:uppercase;" oninput="this.value=this.value.toUpperCase().replace(/\\s/g,'_')">
+                    <button type="submit" class="btn btn-secondary btn-sm py-1 px-2" style="font-size:12px; height:28px;">Rename</button>
+                </form>
+            `;
+
+            // Inline Status Update forms
+            let statusActionHtml = "";
+            if (isActive) {
+                statusActionHtml = `
+                    <button onclick="handleStatusChange(${r.id}, 'deactivate')" class="btn btn-danger btn-sm py-1 px-2 d-flex align-items-center gap-1" style="font-size:12px;">
+                        <i class="ti ti-square-rounded-x"></i> Deactivate
+                    </button>
+                `;
+            } else {
+                statusActionHtml = `
+                    <button onclick="handleStatusChange(${r.id}, 'activate')" class="btn btn-secondary btn-sm py-1 px-2 d-flex align-items-center gap-1" style="font-size:12px;">
+                        <i class="ti ti-square-rounded-check"></i> Activate
+                    </button>
+                `;
+            }
+
+            tr.innerHTML = `
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center justify-content-center text-white" 
+                             style="width: 28px; height: 28px; border-radius: 6px; background-color: var(--brand-light); border: 1px solid rgba(139, 92, 246, 0.2);">
+                            <i class="ti ti-shield-lock text-primary" style="font-size:14px;"></i>
+                        </div>
+                        <a href="manage-role.html?id=${r.id}" class="fw-semibold font-monospace text-primary text-decoration-none" style="font-size:13px;">${r.roleName}</a>
+                    </div>
+                </td>
+                <td>
+                    <span class="font-monospace small text-secondary">#${r.id}</span>
+                </td>
+                <td>
+                    <span class="theme-tag ${statusClass}">
+                        ${statusIcon} ${r.status}
+                    </span>
+                </td>
+                <td>${permsHtml}</td>
+                <td>${renameFormHtml}</td>
+                <td>${statusActionHtml}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function showAlert(type, msg) {
+        const alertBox = document.getElementById("alert-box");
+        const alertIcon = document.getElementById("alert-icon");
+        const alertMsg = document.getElementById("alert-msg");
+
+        alertBox.classList.remove("d-none", "alert-success", "alert-danger");
+        alertMsg.textContent = msg;
+
+        if (type === "success") {
+            alertBox.classList.add("alert-success", "d-flex");
+            alertIcon.className = "ti ti-circle-check";
+        } else {
+            alertBox.classList.add("alert-danger", "d-flex");
+            alertIcon.className = "ti ti-alert-circle";
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function handleCreateRole(e) {
+        e.preventDefault();
+        const roleName = document.getElementById("new-role-name").value;
+
+        try {
+            const res = await apiFetch("/auth/roles/create", {
+                method: "POST",
+                body: JSON.stringify({ roleName })
+            });
+
+            if (res && res.success) {
+                showAlert("success", "Role created successfully.");
+                document.getElementById("new-role-name").value = "";
+                await loadRoles();
+            }
+        } catch (err) {
+            showAlert("danger", err.message || "Failed to create role.");
+        }
+    }
+
+    async function handleRenameRole(e, roleId) {
+        e.preventDefault();
+        const newName = document.getElementById(`rename-input-${roleId}`).value;
+
+        try {
+            const res = await apiFetch(`/auth/roles/rename?roleId=${roleId}&roleName=${encodeURIComponent(newName)}`, {
+                method: "POST"
+            });
+
+            if (res && res.success) {
+                showAlert("success", "Role renamed successfully.");
+                await loadRoles();
+            }
+        } catch (err) {
+            showAlert("danger", err.message || "Failed to rename role.");
+        }
+    }
+
+    async function handleStatusChange(roleId, action) {
+        try {
+            const res = await apiFetch(`/auth/roles/${action}?roleId=${roleId}`, {
+                method: "POST"
+            });
+
+            if (res && res.success) {
+                showAlert("success", `Role ${action}d successfully.`);
+                await loadRoles();
+            }
+        } catch (err) {
+            showAlert("danger", err.message || "Failed to update role status.");
+        }
+    }
+
+    // Polyfill
+    String.prototype.equalsIgnoreCase = function (compareString) {
+        return this.toLowerCase() === compareString.toLowerCase();
+    };
+</script>
+</body>
+</html>

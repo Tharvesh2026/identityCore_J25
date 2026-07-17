@@ -22,6 +22,9 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 import javax.sql.DataSource;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -60,6 +63,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository tokenRepository) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 // ── CSRF ──────────────────────────────────────────────────────────
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -67,7 +71,8 @@ public class SecurityConfig {
                         .ignoringRequestMatchers(
                                 "/h2-console/**",
                                 "/user/**",
-                                "/auth/**"
+                                "/auth/**",
+                                "/login"
                         )
                 )
 
@@ -81,6 +86,8 @@ public class SecurityConfig {
                                 "/oauth2/**", "/login/oauth2/**",
                                 "/forgot-password", "/reset-password",
                                 "/terms", "/privacy", "/cookie-policy",
+                                "/user/terms", "/user/privacy", "/user/cookie-policy",
+                                "/user/forgot-password", "/user/reset-password", "/user/reset-password/verify",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
                                 "/h2-console/**", "/error"
                         ).permitAll()
@@ -104,8 +111,23 @@ public class SecurityConfig {
                         .loginProcessingUrl("/login")
                         .usernameParameter("email")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/welcome", true)
-                        .failureUrl("/login?error=Invalid+email+or+password")
+                        .successHandler((request, response, authentication) -> {
+                            if (request.getHeader("Accept") != null && request.getHeader("Accept").contains("application/json")) {
+                                response.setContentType("application/json;charset=UTF-8");
+                                response.getWriter().write("{\"success\":true,\"message\":\"Login successful\"}");
+                            } else {
+                                response.sendRedirect("/welcome");
+                            }
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            if (request.getHeader("Accept") != null && request.getHeader("Accept").contains("application/json")) {
+                                response.setStatus(401);
+                                response.setContentType("application/json;charset=UTF-8");
+                                response.getWriter().write("{\"success\":false,\"message\":\"Invalid email or password\"}");
+                            } else {
+                                response.sendRedirect("/login?error=Invalid+email+or+password");
+                            }
+                        })
                         .permitAll()
                 )
 
@@ -197,5 +219,17 @@ public class SecurityConfig {
         return (web) -> web.ignoring().requestMatchers(
                 "/css/**", "/js/**", "/images/**", "/assets/**", "/favicon.ico"
         );
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOriginPattern("*");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
