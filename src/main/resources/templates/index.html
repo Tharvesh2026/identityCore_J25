@@ -174,15 +174,20 @@
                 <i class="ti ti-alert-circle"></i>
                 <span th:text="${param.error[0] != null ? param.error[0] : 'Invalid email or password.'}">Invalid credentials.</span>
             </div>
+            <!-- Reset success -->
+            <div class="ic-alert ic-alert-success" th:if="${param.reset}">
+                <i class="ti ti-circle-check"></i>
+                Password has been reset successfully. Please sign in.
+            </div>
             <!-- Logout success -->
             <div class="ic-alert ic-alert-success" th:if="${param.logout}">
                 <i class="ti ti-circle-check"></i>
                 You've been signed out successfully.
             </div>
             <!-- Registration success -->
-            <div class="ic-alert ic-alert-success" th:if="${successMsg}">
+            <div class="ic-alert ic-alert-success" th:if="${success}">
                 <i class="ti ti-circle-check"></i>
-                <span th:text="${successMsg}"></span>
+                <span th:text="${success}"></span>
             </div>
 
             <form th:action="@{/login}" method="post">
@@ -215,7 +220,7 @@
                         Remember me
                     </label>
 
-                    <a href="#" class="forgot-link">Forgot password?</a>
+                    <a th:href="@{/forgot-password}" class="forgot-link">Forgot password?</a>
                 </div>
 
 
@@ -234,16 +239,6 @@
                 <div th:replace="~{fragments/cookie-notice :: cookieNotice}"></div>
             </form>
 
-            <div class="oauth-divider">or continue with</div>
-            <div class="oauth-row">
-                <a th:href="@{/oauth2/authorization/google}" class="ic-btn-oauth" id="btnGoogle">
-                    <i class="ti ti-brand-google"></i> Google
-                </a>
-                <a th:href="@{/oauth2/authorization/github}" class="ic-btn-oauth" id="btnGithub">
-                    <i class="ti ti-brand-github"></i> GitHub
-                </a>
-            </div>
-
             <div class="switch-text">
                 Don't have an account?
                 <a href="#" onclick="showForm('register')">Create one</a>
@@ -255,9 +250,9 @@
             <div class="form-title">Create account</div>
             <div class="form-sub">Join i.Core — you'll get USER role by default</div>
 
-            <div class="ic-alert ic-alert-error" th:if="${flashError}">
+            <div class="ic-alert ic-alert-error" th:if="${error}">
                 <i class="ti ti-alert-circle"></i>
-                <span th:text="${flashError}"></span>
+                <span th:text="${error}"></span>
             </div>
 
             <form th:action="@{/register}" method="post">

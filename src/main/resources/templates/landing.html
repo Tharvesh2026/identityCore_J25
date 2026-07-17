@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i.Core — Identity &amp; Access Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
+    <style>
+        body { font-family:'Inter',sans-serif; margin:0; }
+        .shell { display:flex; min-height:100vh; }
+        .left { flex:1; background:#4f46e5; color:#fff; padding:56px 48px; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+        .brand { display:flex; align-items:center; gap:10px; font-weight:600; font-size:16px; }
+        .brand-mark { width:28px; height:28px; border-radius:6px; background:rgba(255,255,255,0.25); }
+        .brand-sub { font-size:11px; opacity:0.7; margin-left:38px; margin-top:-2px; }
+        .tagline { font-size:28px; font-weight:700; line-height:1.3; margin-top:60px; max-width:320px; }
+        .tagline-sub { font-size:14px; opacity:0.85; margin-top:12px; max-width:300px; line-height:1.6; }
+        .features { margin-top:48px; display:flex; flex-direction:column; gap:14px; font-size:13.5px; opacity:0.95; }
+        .footer-note { margin-top:auto; font-size:11.5px; opacity:0.6; }
+
+        .right { flex:1; display:flex; align-items:center; justify-content:center; background:#fff; padding:40px; }
+        .panel { max-width:360px; width:100%; }
+        .panel h1 { font-size:22px; margin:0 0 6px; color:#111827; }
+        .panel p.sub { font-size:14px; color:#6b7280; margin:0 0 32px; }
+
+        .auth-btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:13px; border-radius:8px; font-size:14px; font-weight:500; text-decoration:none; margin-bottom:14px; box-sizing:border-box; cursor:pointer; }
+        .auth-btn.email { background:#4f46e5; color:#fff; border:none; }
+        .auth-btn.google { background:#fff; color:#374151; border:1px solid #d1d5db; }
+        .auth-btn.github { background:#111827; color:#fff; border:none; }
+
+        .legal-note { text-align:center; font-size:12px; color:#9ca3af; margin-top:20px; }
+        .legal-note a { color:#6b7280; text-decoration:underline; }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <div class="left">
+        <div class="brand"><span class="brand-mark"></span> i.Core</div>
+        <div class="brand-sub">tharbytes.io</div>
+        <div class="tagline">Identity &amp; Access Management</div>
+        <div class="tagline-sub">Secure, permission-driven cloud portal for your team.</div>
+        <div class="features">
+            <div><i class="ti ti-shield-lock"></i>&nbsp; Permission-based access control</div>
+            <div><i class="ti ti-database"></i>&nbsp; DB-resolved role permissions</div>
+            <div><i class="ti ti-activity"></i>&nbsp; Real-time audit logging</div>
+            <div><i class="ti ti-lock"></i>&nbsp; CSRF &amp; session protection</div>
+            <div><i class="ti ti-cookie"></i>&nbsp; Secure session cookies</div>
+        </div>
+        <div class="footer-note">© 2026 i.Core Projects · Identity Core</div>
+    </div>
+
+    <div class="right">
+        <div class="panel">
+            <h1>Welcome to i.Core</h1>
+            <p class="sub">Choose how you'd like to continue.</p>
+
+            <a th:href="@{/login}" class="auth-btn email">
+                <i class="ti ti-mail"></i> Continue with Email &amp; Password
+            </a>
+            <a th:href="@{/oauth2/authorization/google}" class="auth-btn google">
+                <i class="ti ti-brand-google"></i> Continue with Google
+            </a>
+            <a th:href="@{/oauth2/authorization/github}" class="auth-btn github">
+                <i class="ti ti-brand-github"></i> Continue with GitHub
+            </a>
+
+            <div class="legal-note" style="text-align:center; margin-top:24px; font-size:12.5px; color:#9ca3af;">
+                By continuing, you agree to our
+                <a th:href="@{/terms}" style="color:#6b7280; text-decoration:underline;">Terms</a>
+                and
+                <a th:href="@{/privacy}" style="color:#6b7280; text-decoration:underline;">Privacy Policy</a>.
+            </div>
+
+            <div th:replace="~{fragments/cookie-notice :: cookieNotice}"></div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -5,11 +5,13 @@ import dev.tharbytes.identityCore.exception.*;
 import dev.tharbytes.identityCore.repository.*;
 import dev.tharbytes.identityCore.util.PasswordUtil;
 import dev.tharbytes.identityCore.util.ValidationUtil;
+import jakarta.mail.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,10 +22,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final EmailService emailService;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, EmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.emailService = emailService;
     }
 
     /** Validate credentials (returns true if password matches) */
@@ -61,7 +65,7 @@ public class UserService {
 
     /** Register a new user with USER role */
     @Transactional
-    public UserEntity register(String name, String username, String email, String password) {
+    public UserEntity register(String name, String username, String email, String password) throws MessagingException, IOException {
 
         if (userRepository.existsByMailId(email)) {
             log.warn("Registration failed: email [{}] is already registered.", email);
@@ -85,6 +89,7 @@ public class UserService {
 
         UserEntity saved = userRepository.save(user);
         log.info("User registered: {}", saved.getUsername());
+        emailService.inviteMail(email.toLowerCase());
         return saved;
     }
 

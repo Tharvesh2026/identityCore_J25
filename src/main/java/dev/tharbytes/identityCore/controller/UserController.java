@@ -3,6 +3,7 @@ package dev.tharbytes.identityCore.controller;
 import dev.tharbytes.identityCore.entity.*;
 import dev.tharbytes.identityCore.security.AuthHelper;
 import dev.tharbytes.identityCore.service.*;
+import jakarta.mail.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -10,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -111,7 +113,7 @@ public class UserController {
             @RequestParam String email,
             @RequestParam String username,
             @RequestParam String password,
-            RedirectAttributes ra) {
+            RedirectAttributes ra) throws MessagingException, IOException {
 
         if (name == null || name.isBlank()) { log.warn("Registration validation failed: name is required."); ra.addFlashAttribute("error", "Name is required"); return "redirect:/login?tab=register"; }
         if (username == null || username.isBlank()) { log.warn("Registration validation failed: username is required."); ra.addFlashAttribute("error", "Username is required"); return "redirect:/login?tab=register"; }

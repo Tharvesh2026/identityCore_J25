@@ -79,6 +79,7 @@ public class SecurityConfig {
                                 "/", "/login", "/register",
                                 "/user/login", "/user/register",
                                 "/oauth2/**", "/login/oauth2/**",
+                                "/forgot-password", "/reset-password",
                                 "/terms", "/privacy", "/cookie-policy",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
                                 "/h2-console/**", "/error"
