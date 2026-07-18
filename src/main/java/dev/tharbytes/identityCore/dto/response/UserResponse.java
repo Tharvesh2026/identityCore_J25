@@ -12,10 +12,22 @@ public class UserResponse {
     private String role;
     private String status;
     private List<String> permissions;
+    private String provider;
+    private boolean verified;
+    private String businessName;
+    private String location;
+    private String awsAccountId;
+    private String gcpProjectId;
+    private String azureSubscriptionId;
+    private java.time.LocalDateTime createdAt;
+    private java.time.LocalDateTime updatedAt;
 
     public UserResponse() {}
 
-    public UserResponse(Long id, String name, String email, String username, String role, String status, List<String> permissions) {
+    public UserResponse(Long id, String name, String email, String username, String role, String status, List<String> permissions,
+                        String provider, boolean verified, String businessName, String location,
+                        String awsAccountId, String gcpProjectId, String azureSubscriptionId,
+                        java.time.LocalDateTime createdAt, java.time.LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -23,6 +35,15 @@ public class UserResponse {
         this.role = role;
         this.status = status;
         this.permissions = permissions;
+        this.provider = provider;
+        this.verified = verified;
+        this.businessName = businessName;
+        this.location = location;
+        this.awsAccountId = awsAccountId;
+        this.gcpProjectId = gcpProjectId;
+        this.azureSubscriptionId = azureSubscriptionId;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public static UserResponse from(UserEntity u) {
@@ -40,7 +61,16 @@ public class UserResponse {
             u.getUsername(),
             u.getRoleName(),
             u.getStatus(),
-            perms
+            perms,
+            u.getProvider(),
+            u.isVerified(),
+            u.getBusinessName(),
+            u.getLocation(),
+            u.getAwsAccountId(),
+            u.getGcpProjectId(),
+            u.getAzureSubscriptionId(),
+            u.getCreatedAt(),
+            u.getUpdatedAt()
         );
     }
 
@@ -98,5 +128,77 @@ public class UserResponse {
 
     public void setPermissions(List<String> permissions) {
         this.permissions = permissions;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getAwsAccountId() {
+        return awsAccountId;
+    }
+
+    public void setAwsAccountId(String awsAccountId) {
+        this.awsAccountId = awsAccountId;
+    }
+
+    public String getGcpProjectId() {
+        return gcpProjectId;
+    }
+
+    public void setGcpProjectId(String gcpProjectId) {
+        this.gcpProjectId = gcpProjectId;
+    }
+
+    public String getAzureSubscriptionId() {
+        return azureSubscriptionId;
+    }
+
+    public void setAzureSubscriptionId(String azureSubscriptionId) {
+        this.azureSubscriptionId = azureSubscriptionId;
+    }
+
+    public java.time.LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(java.time.LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public java.time.LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(java.time.LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

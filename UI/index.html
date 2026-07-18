@@ -63,46 +63,92 @@
             <button type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
                 <i class="ti ti-login"></i> Sign in
             </button>
+
+            <!-- Social logins -->
+            <div class="my-3 text-center text-secondary small">Or continue with</div>
+            <div class="d-flex gap-2">
+                <a href="http://localhost:8080/oauth2/authorization/google" id="btn-oauth-google" class="btn btn-outline-secondary w-50 d-flex align-items-center justify-content-center gap-2">
+                    <i class="ti ti-brand-google"></i> Google
+                </a>
+                <a href="http://localhost:8080/oauth2/authorization/github" id="btn-oauth-github" class="btn btn-outline-secondary w-50 d-flex align-items-center justify-content-center gap-2">
+                    <i class="ti ti-brand-github"></i> GitHub
+                </a>
+            </div>
         </form>
+
+        <!-- Step indicator -->
+        <div class="d-flex justify-content-between mb-3 small text-secondary d-none" id="register-steps-indicator">
+            <span id="step-ind-1" class="fw-bold" style="color: var(--brand);">1. Account</span>
+            <span id="step-ind-2">2. Business</span>
+        </div>
 
         <!-- Register Form -->
         <form id="register-form" onsubmit="handleRegister(event)" class="d-none">
-            <div class="mb-3">
-                <label class="form-label">Full name</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-user"></i></span>
-                    <input type="text" id="reg-name" class="form-control" placeholder="John Doe" required>
+            <!-- STEP 1: Account Info -->
+            <div class="reg-wizard-step" id="reg-step-1">
+                <div class="mb-3">
+                    <label class="form-label">Full name</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-user"></i></span>
+                        <input type="text" id="reg-name" class="form-control" placeholder="John Doe" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-at"></i></span>
+                        <input type="text" id="reg-username" class="form-control" placeholder="johndoe" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email address</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-mail"></i></span>
+                        <input type="email" id="reg-email" class="form-control" placeholder="john@example.com" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-lock"></i></span>
+                        <input type="password" id="reg-password" class="form-control" placeholder="Min. 6 characters" required minlength="6">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" onclick="goToStep(2)">
+                    Next <i class="ti ti-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- STEP 2: Company/Business Info -->
+            <div class="reg-wizard-step d-none" id="reg-step-2">
+                <div class="mb-3">
+                    <label class="form-label">Business Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-building"></i></span>
+                        <input type="text" id="reg-businessName" class="form-control" placeholder="Tharbytes Corp">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Location</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-map-pin"></i></span>
+                        <input type="text" id="reg-location" class="form-control" placeholder="Singapore">
+                    </div>
+                </div>
+                <p class="text-secondary small mb-3" style="line-height:1.4;">
+                    By signing up, you agree to our 
+                    <a href="terms.html" class="text-decoration-none" style="color:var(--brand);">Terms of Service</a> and 
+                    <a href="privacy.html" class="text-decoration-none" style="color:var(--brand);">Privacy Policy</a>.
+                </p>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary w-50" onclick="goToStep(1)">
+                        <i class="ti ti-arrow-left"></i> Back
+                    </button>
+                    <button type="submit" class="btn btn-primary w-50 d-flex align-items-center justify-content-center gap-2">
+                        <i class="ti ti-user-plus"></i> Create account
+                    </button>
                 </div>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-at"></i></span>
-                    <input type="text" id="reg-username" class="form-control" placeholder="johndoe" required>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Email address</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-mail"></i></span>
-                    <input type="email" id="reg-email" class="form-control" placeholder="john@example.com" required>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-lock"></i></span>
-                    <input type="password" id="reg-password" class="form-control" placeholder="Min. 6 characters" required minlength="6">
-                </div>
-            </div>
-            <p class="text-secondary small mb-3" style="line-height:1.4;">
-                By signing up, you agree to our 
-                <a href="terms.html" class="text-decoration-none" style="color:var(--brand);">Terms of Service</a> and 
-                <a href="privacy.html" class="text-decoration-none" style="color:var(--brand);">Privacy Policy</a>.
-            </p>
-            <button type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
-                <i class="ti ti-user-plus"></i> Create account
-            </button>
         </form>
     </div>
 
@@ -110,6 +156,12 @@
     <script>
         // Check URL params on page load
         window.addEventListener("DOMContentLoaded", () => {
+            // Update OAuth2 links dynamic base URL switch
+            const googleBtn = document.getElementById("btn-oauth-google");
+            const githubBtn = document.getElementById("btn-oauth-github");
+            if (googleBtn) googleBtn.href = `${API_BASE_URL}/oauth2/authorization/google`;
+            if (githubBtn) githubBtn.href = `${API_BASE_URL}/oauth2/authorization/github`;
+
             apiFetch("/user/welcome", { bypassAuthCheck: true })
                 .then(res => {
                     if (res && res.success) {
@@ -137,10 +189,12 @@
             const registerForm = document.getElementById("register-form");
             const tabLogin = document.getElementById("tab-login");
             const tabRegister = document.getElementById("tab-register");
+            const stepIndicator = document.getElementById("register-steps-indicator");
 
             if (tab === "login") {
                 loginForm.classList.remove("d-none");
                 registerForm.classList.add("d-none");
+                if (stepIndicator) stepIndicator.classList.add("d-none");
                 tabLogin.className = "nav-link active text-white";
                 tabLogin.style.borderBottomColor = "var(--brand)";
                 tabRegister.className = "nav-link text-secondary";
@@ -148,6 +202,8 @@
             } else {
                 loginForm.classList.add("d-none");
                 registerForm.classList.remove("d-none");
+                if (stepIndicator) stepIndicator.classList.remove("d-none");
+                goToStep(1);
                 tabRegister.className = "nav-link active text-white";
                 tabRegister.style.borderBottomColor = "var(--brand)";
                 tabLogin.className = "nav-link text-secondary";
@@ -210,6 +266,9 @@
             const username = document.getElementById("reg-username").value;
             const email = document.getElementById("reg-email").value;
             const password = document.getElementById("reg-password").value;
+            
+            const businessName = document.getElementById("reg-businessName").value;
+            const location = document.getElementById("reg-location").value;
 
             try {
                 const res = await apiFetch("/user/register", {
@@ -218,16 +277,48 @@
                         name: name,
                         username: username,
                         email: email,
-                        password: password
+                        password: password,
+                        businessName: businessName,
+                        location: location
                     })
                 });
 
                 if (res && res.success) {
-                    showAlert("success", "Registration successful. Please sign in.");
+                    showAlert("success", "Registration successful. Please check your email for the 6-digit verification code, then sign in to verify your account.");
                     switchTab("login");
                 }
             } catch (err) {
                 showAlert("danger", err.message || "Registration failed.");
+            }
+        }
+
+        function goToStep(step) {
+            if (step > 1) {
+                const prevStepEl = document.getElementById('reg-step-' + (step - 1));
+                const inputs = prevStepEl.querySelectorAll('input[required]');
+                let isValid = true;
+                inputs.forEach(input => {
+                    if (!input.checkValidity()) {
+                        input.reportValidity();
+                        isValid = false;
+                    }
+                });
+                if (!isValid) return;
+            }
+
+            document.querySelectorAll('.reg-wizard-step').forEach(stepEl => {
+                stepEl.classList.add('d-none');
+            });
+            document.getElementById('reg-step-' + step).classList.remove('d-none');
+
+            document.querySelectorAll('[id^="step-ind-"]').forEach(indicator => {
+                indicator.classList.remove('fw-bold');
+                indicator.style.color = '';
+            });
+            const currentIndicator = document.getElementById('step-ind-' + step);
+            if (currentIndicator) {
+                currentIndicator.classList.add('fw-bold');
+                currentIndicator.style.color = 'var(--brand)';
             }
         }
     </script>

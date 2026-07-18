@@ -31,7 +31,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
     private final EmailService emailService;
 
     private static final Logger log =
-            LoggerFactory.getLogger(AppUserDetailsService.class);
+            LoggerFactory.getLogger(CustomOidcUserService.class);
 
     public CustomOidcUserService(OAuth2UserProvisioner provisioner, EmailService emailService) {
         this.provisioner = provisioner;

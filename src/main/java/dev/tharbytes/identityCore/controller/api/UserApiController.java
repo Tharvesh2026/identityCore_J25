@@ -290,8 +290,47 @@ public class UserApiController {
         }
 
         UserEntity user = userService.register(
-                req.getName(), req.getUsername(), req.getEmail(), req.getPassword());
+                req.getName(), req.getUsername(), req.getEmail(), req.getPassword(),
+                req.getBusinessName(), req.getLocation(),
+                req.getAwsAccountId(), req.getGcpProjectId(), req.getAzureSubscriptionId());
         log.info("User [{}] registered successfully.", user.getId());
         return ResponseEntity.status(201).body(ApiResponse.ok("Registration successful", UserResponse.from(user)));
+    }
+
+    /** POST /user/verify-otp — complete email verification */
+    @PostMapping("/verify-otp")
+    public ResponseEntity<ApiResponse<?>> verifyOtp(@RequestBody Map<String, String> body) {
+        String otp = body.get("otp");
+        if (otp == null || otp.isBlank()) {
+            throw new ValidationException("Verification code is required");
+        }
+        UserEntity current = authHelper.requireCurrentUser();
+        boolean success = userService.verifyOtp(current.getId(), otp);
+        if (!success) {
+            throw new ValidationException("Invalid or expired verification code");
+        }
+        return ResponseEntity.ok(ApiResponse.ok("Verification successful"));
+    }
+
+    /** POST /user/verify-otp/resend — resend verification OTP */
+    @PostMapping("/verify-otp/resend")
+    public ResponseEntity<ApiResponse<?>> resendOtp() throws MessagingException, IOException {
+        UserEntity current = authHelper.requireCurrentUser();
+        userService.resendOtp(current.getId());
+        return ResponseEntity.ok(ApiResponse.ok("Verification code resent successfully"));
+    }
+
+    /** DELETE /user — delete user by ID */
+    @DeleteMapping
+    @PreAuthorize("hasAuthority('USER_DELETE')")
+    public ResponseEntity<ApiResponse<?>> deleteUser(@RequestParam Long id) {
+        UserEntity current = authHelper.requireCurrentUser();
+        if (current.getId().equals(id)) {
+            throw new ValidationException("You cannot delete your own account");
+        }
+        UserEntity target = userService.getById(id);
+        userService.deleteUser(id);
+        log.info("User [{}] deleted by admin [{}].", target.getUsername(), current.getUsername());
+        return ResponseEntity.ok(ApiResponse.ok("User deleted successfully"));
     }
 }

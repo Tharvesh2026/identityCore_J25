@@ -56,6 +56,11 @@
                         <div class="small text-secondary mt-1">
                             @<span id="header-username">username</span> &nbsp;&bull;&nbsp; <span id="header-email">email</span>
                         </div>
+                        <div class="small text-secondary mt-1 d-none" id="header-business-info">
+                            <span id="header-business"><i class="ti ti-building"></i> Business</span>
+                            &nbsp;&bull;&nbsp;
+                            <span id="header-location"><i class="ti ti-map-pin"></i> Location</span>
+                        </div>
                         <div class="mt-2 d-flex gap-2 align-items-center flex-wrap">
                             <span class="theme-tag tag-generic" id="header-role-tag">ROLE</span>
                             <span class="theme-tag tag-active" id="header-status-tag">ACTIVE</span>
@@ -138,6 +143,24 @@
             </div>
 
         </div>
+ 
+        <!-- Danger Zone (Delete Account) -->
+        <div class="card p-4 mt-4 border-danger d-none" id="danger-zone-card" style="background-color: rgba(220, 38, 38, 0.05);">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bg-dark border border-danger border-opacity-25 rounded d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
+                        <i class="ti ti-trash text-danger fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white mb-0 fw-semibold">Delete User Account</h6>
+                        <p class="text-secondary small mb-0">Permanently remove this user and all associated reset tokens. This action is irreversible.</p>
+                    </div>
+                </div>
+                <button onclick="handleDeleteUser()" class="btn btn-danger d-flex align-items-center gap-1">
+                    <i class="ti ti-trash"></i> Delete Account
+                </button>
+            </div>
+        </div>
 
     </main>
 
@@ -156,7 +179,12 @@
 
         // Render sidebar
         initNavbar(user);
-
+ 
+        // Show Danger Zone card if admin has permission
+        if (user.permissions && user.permissions.includes("USER_DELETE")) {
+            document.getElementById("danger-zone-card").classList.remove("d-none");
+        }
+ 
         // Get User ID from params
         const params = new URLSearchParams(window.location.search);
         userId = params.get("id");
@@ -191,6 +219,19 @@
                 const statusEl = document.getElementById("header-status-tag");
                 statusEl.textContent = su.status;
                 statusEl.className = "ACTIVE".equalsIgnoreCase(su.status) ? "theme-tag tag-active" : "theme-tag tag-inactive";
+ 
+                // Set business info
+                const bizInfo = document.getElementById("header-business-info");
+                if (su.businessName || su.location) {
+                    bizInfo.classList.remove("d-none");
+                    if (!su.businessName || !su.location) {
+                        bizInfo.innerHTML = su.businessName ? `<i class="ti ti-building"></i> ${su.businessName}` : `<i class="ti ti-map-pin"></i> ${su.location}`;
+                    } else {
+                        bizInfo.innerHTML = `<i class="ti ti-building"></i> ${su.businessName} &nbsp;&bull;&nbsp; <i class="ti ti-map-pin"></i> ${su.location}`;
+                    }
+                } else {
+                    bizInfo.classList.add("d-none");
+                }
 
                 // Set status dropdown
                 document.getElementById("status-select").value = su.status;
@@ -288,6 +329,23 @@
         }
     }
 
+    async function handleDeleteUser() {
+        if (!confirm("WARNING: Are you sure you want to permanently delete this user? This cannot be undone.")) {
+            return;
+        }
+        try {
+            const res = await apiFetch(`/user?id=${userId}`, {
+                method: "DELETE"
+            });
+            if (res && res.success) {
+                alert("User deleted successfully.");
+                window.location.href = "users.html";
+            }
+        } catch (e) {
+            showAlert("danger", e.message || "Failed to delete user.");
+        }
+    }
+ 
     // Polyfill
     String.prototype.equalsIgnoreCase = function (compareString) {
         return this.toLowerCase() === compareString.toLowerCase();

@@ -72,9 +72,25 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/user/**",
                                 "/auth/**",
-                                "/login"
+                                "/login",
+                                "/register",
+                                "/verify-otp/resend"
                         )
                 )
+                .addFilterAfter(new org.springframework.web.filter.OncePerRequestFilter() {
+                    @Override
+                    protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request, 
+                                                    jakarta.servlet.http.HttpServletResponse response, 
+                                                    jakarta.servlet.FilterChain filterChain)
+                            throws jakarta.servlet.ServletException, java.io.IOException {
+                        org.springframework.security.web.csrf.CsrfToken csrfToken = 
+                            (org.springframework.security.web.csrf.CsrfToken) request.getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
+                        if (csrfToken != null) {
+                            csrfToken.getToken();
+                        }
+                        filterChain.doFilter(request, response);
+                    }
+                }, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
 
                 .headers(h -> h.frameOptions(fo -> fo.sameOrigin()))
 
@@ -85,6 +101,8 @@ public class SecurityConfig {
                                 "/user/login", "/user/register",
                                 "/oauth2/**", "/login/oauth2/**",
                                 "/forgot-password", "/reset-password",
+                                "/verify-otp", "/verify-otp/resend",
+                                "/user/verify-otp", "/user/verify-otp/resend",
                                 "/terms", "/privacy", "/cookie-policy",
                                 "/user/terms", "/user/privacy", "/user/cookie-policy",
                                 "/user/forgot-password", "/user/reset-password", "/user/reset-password/verify",

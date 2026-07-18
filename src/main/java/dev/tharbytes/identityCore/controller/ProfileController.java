@@ -40,6 +40,8 @@ public class ProfileController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String email,
+            @RequestParam(required = false) String businessName,
+            @RequestParam(required = false) String location,
             @RequestParam(required = false) String currentPassword,
             @RequestParam(required = false) String newPassword,
             @RequestParam(required = false) String confirmPassword,
@@ -49,7 +51,7 @@ public class ProfileController {
         log.info("Profile action [{}] requested by user [{}].", action, user.getId());
 
         if ("updateProfile".equals(action)) {
-            return handleUpdateProfile(user, name, username, email, ra);
+            return handleUpdateProfile(user, name, username, email, businessName, location, ra);
         } else if ("changePassword".equals(action)) {
             return handleChangePassword(user, currentPassword, newPassword, confirmPassword, ra);
         }
@@ -59,7 +61,7 @@ public class ProfileController {
         return "redirect:/profile";
     }
 
-    private String handleUpdateProfile(UserEntity user, String name, String username, String email, RedirectAttributes ra) {
+    private String handleUpdateProfile(UserEntity user, String name, String username, String email, String businessName, String location, RedirectAttributes ra) {
         String sanitizedName     = ValidationUtil.sanitizeName(name);
         String sanitizedUsername = ValidationUtil.sanitizeUsername(username);
         String sanitizedEmail    = email;
@@ -83,7 +85,7 @@ public class ProfileController {
             return "redirect:/profile";
         }
 
-        userService.updateProfile(user.getId(), sanitizedName, sanitizedUsername, sanitizedEmail);
+        userService.updateProfile(user.getId(), sanitizedName, sanitizedUsername, sanitizedEmail, businessName, location);
         ra.addFlashAttribute("success", "Profile updated successfully.");
         log.info("Profile updated for user {}", user.getUsername());
         return "redirect:/profile";

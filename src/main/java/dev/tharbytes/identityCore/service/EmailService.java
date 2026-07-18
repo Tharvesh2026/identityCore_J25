@@ -35,6 +35,34 @@ public class EmailService {
         this.templateEngine = templateEngine;
     }
 
+    public void sendOtpVerificationEmail(String toEmail, String otp) {
+        try {
+            Context context = new Context();
+            context.setVariable("otp", otp);
+
+            String html = templateEngine.process("mail/otp-verification", context);
+
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    mimeMessage,
+                    MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name()
+            );
+
+            helper.setFrom(new InternetAddress(fromAddress, "Tharvbytes.dev"));
+            helper.setTo(toEmail);
+            helper.setSubject("Verify your Identity Core account");
+            helper.setText(html, true);
+
+            mailSender.send(mimeMessage);
+            log.info("OTP verification email sent to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send OTP verification email to {}", toEmail, e);
+            // Fallback logger output so we can verify locally if SMTP is not configured
+            log.info("OTP VERIFICATION CODE for {} : {}", toEmail, otp);
+        }
+    }
+
     public void sendPasswordResetEmail(String toEmail, String resetLink) {
 
         try {

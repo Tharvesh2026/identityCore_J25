@@ -23,11 +23,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final EmailService emailService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, EmailService emailService) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, EmailService emailService, PasswordResetTokenRepository passwordResetTokenRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.emailService = emailService;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
     }
 
     /** Validate credentials (returns true if password matches) */
@@ -63,9 +65,11 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    /** Register a new user with USER role */
+    /** Register a new user with USER role and pending verification status */
     @Transactional
-    public UserEntity register(String name, String username, String email, String password) throws MessagingException, IOException {
+    public UserEntity register(String name, String username, String email, String password,
+                               String businessName, String location,
+                               String awsAccountId, String gcpProjectId, String azureSubscriptionId) throws MessagingException, IOException {
 
         if (userRepository.existsByMailId(email)) {
             log.warn("Registration failed: email [{}] is already registered.", email);
@@ -85,17 +89,29 @@ public class UserService {
         user.setMailId(email.toLowerCase());
         user.setPassword(PasswordUtil.hash(password));
         user.setRole(userRole);
-        user.setStatus("ACTIVE");
+        user.setProvider("LOCAL");
+        user.setVerified(false);
+        user.setStatus("PENDING_VERIFICATION");
+        
+        user.setBusinessName(businessName);
+        user.setLocation(location);
+        user.setAwsAccountId(awsAccountId);
+        user.setGcpProjectId(gcpProjectId);
+        user.setAzureSubscriptionId(azureSubscriptionId);
+
+        String otp = String.format("%06d", new java.util.Random().nextInt(1000000));
+        user.setVerificationOtp(otp);
+        user.setOtpExpiresAt(java.time.LocalDateTime.now().plusMinutes(10));
 
         UserEntity saved = userRepository.save(user);
-        log.info("User registered: {}", saved.getUsername());
-        emailService.inviteMail(email.toLowerCase());
+        log.info("User registered (pending verification): {}", saved.getUsername());
+        emailService.sendOtpVerificationEmail(email.toLowerCase(), otp);
         return saved;
     }
 
-    /** Update profile (name, username, email) */
+    /** Update profile (name, username, email, businessName, location) */
     @Transactional
-    public UserEntity updateProfile(Long userId, String name, String username, String email) {
+    public UserEntity updateProfile(Long userId, String name, String username, String email, String businessName, String location) {
         UserEntity user = getById(userId);
 
         // Check uniqueness only if changed
@@ -111,10 +127,20 @@ public class UserService {
         user.setName(ValidationUtil.sanitizeName(name));
         user.setUsername(ValidationUtil.sanitizeUsername(username));
         user.setMailId(email.toLowerCase());
+        user.setBusinessName(businessName);
+        user.setLocation(location);
 
         UserEntity saved = userRepository.save(user);
         log.info("User [{}] updated successfully.", userId);
         return saved;
+    }
+
+    /** Delete user by ID */
+    @Transactional
+    public void deleteUser(Long id) {
+        passwordResetTokenRepository.deleteByUserId(id);
+        userRepository.deleteById(id);
+        log.info("User ID [{}] deleted successfully.", id);
     }
 
     /** Verify current password */
@@ -160,6 +186,49 @@ public class UserService {
         user.setStatus(status);
         userRepository.save(user);
         log.info("User {} status updated to {}", userId, status);
+    }
+
+    /** Complete verification with OTP */
+    @Transactional
+    public boolean verifyOtp(Long userId, String otp) {
+        UserEntity user = getById(userId);
+        if (!"PENDING_VERIFICATION".equalsIgnoreCase(user.getStatus())) {
+            return true;
+        }
+        if (user.getVerificationOtp() == null ||
+            user.getOtpExpiresAt() == null ||
+            !user.getVerificationOtp().equals(otp.trim()) ||
+            java.time.LocalDateTime.now().isAfter(user.getOtpExpiresAt())) {
+            return false;
+        }
+        user.setStatus("ACTIVE");
+        user.setVerified(true);
+        user.setVerificationOtp(null);
+        user.setOtpExpiresAt(null);
+        userRepository.save(user);
+        log.info("User {} verified successfully via OTP.", userId);
+        
+        try {
+            emailService.inviteMail(user.getMailId());
+        } catch (Exception e) {
+            log.error("Failed to send welcome invite email after verification to {}", user.getMailId(), e);
+        }
+        return true;
+    }
+
+    /** Resend registration verification OTP */
+    @Transactional
+    public void resendOtp(Long userId) throws MessagingException, IOException {
+        UserEntity user = getById(userId);
+        if (!"PENDING_VERIFICATION".equalsIgnoreCase(user.getStatus())) {
+            throw new ValidationException("Account is already verified");
+        }
+        String newOtp = String.format("%06d", new java.util.Random().nextInt(1000000));
+        user.setVerificationOtp(newOtp);
+        user.setOtpExpiresAt(java.time.LocalDateTime.now().plusMinutes(10));
+        userRepository.save(user);
+        log.info("Regenerated OTP for user {}", userId);
+        emailService.sendOtpVerificationEmail(user.getMailId(), newOtp);
     }
 
     /** Get user permissions */

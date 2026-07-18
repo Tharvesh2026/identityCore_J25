@@ -27,6 +27,7 @@ async function apiFetch(path, options = {}) {
         const isPublicPage = window.location.pathname.endsWith("index.html") || 
                              window.location.pathname.endsWith("/") || 
                              window.location.pathname.endsWith("/UI/") ||
+                             window.location.pathname.endsWith("verify-otp.html") ||
                              window.location.pathname.endsWith("forgot-password.html") || 
                              window.location.pathname.endsWith("reset-password.html") ||
                              window.location.pathname.endsWith("terms.html") || 
@@ -36,6 +37,17 @@ async function apiFetch(path, options = {}) {
         if (response.status === 401 && !options.bypassAuthCheck && !isPublicPage) {
             handleSessionExpired();
             return;
+        }
+
+        if (response.status === 403 && !isPublicPage) {
+            try {
+                const clone = response.clone();
+                const data = await clone.json();
+                if (data.status === "PENDING_VERIFICATION") {
+                    window.location.href = getRelativePath("verify-otp.html");
+                    return;
+                }
+            } catch (e) {}
         }
 
         // If the response is text-based (like raw logs)

@@ -56,22 +56,22 @@ INSERT INTO role_permissions (role_id, permission_id)
 
 -- ── Default SYS_ADMIN user ────────────────────────────
 -- Password: Admin@123
-INSERT INTO users (name, mail_id, username, password, role_id, status)
+INSERT INTO users (name, mail_id, username, password, role_id, status, provider, verified, created_at)
   SELECT 'System Admin', 'sysadmin@icore.dev', 'sysadmin',
          '$2a$12$gZ/CNeFCdfBe7bbAXdN2gujE3d46k7D7AcjPuyO9H47kwetWyTWTu',
-         r.id, 'ACTIVE'
+         r.id, 'ACTIVE', 'LOCAL', true, CURRENT_TIMESTAMP
   FROM roles r WHERE r.role_name = 'SYS_ADMIN';
 
-INSERT INTO users (name, mail_id, username, password, role_id, status)
+INSERT INTO users (name, mail_id, username, password, role_id, status, provider, verified, created_at)
   SELECT 'Admin', 'admin@icore.dev', 'admin',
          '$2a$12$gZ/CNeFCdfBe7bbAXdN2gujE3d46k7D7AcjPuyO9H47kwetWyTWTu',
-         r.id, 'ACTIVE'
+         r.id, 'ACTIVE', 'LOCAL', true, CURRENT_TIMESTAMP
   FROM roles r WHERE r.role_name = 'ADMIN';
 
-INSERT INTO users (name, mail_id, username, password, role_id, status)
+INSERT INTO users (name, mail_id, username, password, role_id, status, provider, verified, created_at)
   SELECT 'User', 'user@icore.dev', 'User',
          '$2y$12$eVW59sNFHpTpO8.xnM4DCejsVGNs6fFSbKt22RPAZp14Qyq99A83m',
-         r.id, 'ACTIVE'
+         r.id, 'ACTIVE', 'LOCAL', true, CURRENT_TIMESTAMP
   FROM roles r WHERE r.role_name = 'USER';
 
 

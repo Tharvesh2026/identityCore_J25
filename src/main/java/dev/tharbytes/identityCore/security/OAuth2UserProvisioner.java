@@ -48,19 +48,21 @@ public class OAuth2UserProvisioner {
     }
 
     private UserEntity provisionGuestUser(String email, String displayName, String registrationId) {
-        RoleEntity guestRole = roleRepository.findById(GUEST_ROLE_ID)
-                .orElseThrow(() -> new ResourceNotFoundException("Guest role not found"));
+        RoleEntity defaultRole = roleRepository.findByRoleName("USER")
+                .orElseThrow(() -> new ResourceNotFoundException("Default USER role not found"));
 
         UserEntity user = new UserEntity();
         user.setName(displayName);
         user.setUsername(generateUniqueUsername(email));
         user.setMailId(email);
         user.setPassword(GUEST_PASSWORD_HASH);
-        user.setRole(guestRole);
+        user.setRole(defaultRole);
         user.setStatus("ACTIVE");
+        user.setProvider(registrationId.toUpperCase());
+        user.setVerified(true);
 
         UserEntity saved = userRepository.save(user);
-        log.info("User [{}] auto-provisioned via provider [{}] with GUEST role.", email, registrationId);
+        log.info("User [{}] auto-provisioned via provider [{}] with USER role.", email, registrationId);
         return saved;
     }
 
@@ -78,3 +80,4 @@ public class OAuth2UserProvisioner {
         return candidate;
     }
 }
+

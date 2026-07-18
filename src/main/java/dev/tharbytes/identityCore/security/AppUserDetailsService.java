@@ -27,13 +27,18 @@ public class AppUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String mailId) throws UsernameNotFoundException {
-        log.info("Authentication initiated for username [{}].", mailId);
+        log.debug("Authentication initiated for username [{}].", mailId);
 
         UserEntity user = userRepository.findByMailId(mailId)
                 .orElseThrow(() -> {
                     log.warn("Authentication failed for username [{}]: user not found.", mailId);
                     return new UsernameNotFoundException("User not found: " + mailId);
                 });
+
+        if (!"LOCAL".equalsIgnoreCase(user.getProvider())) {
+            log.warn("Form login denied for OAuth2 user [{}]: registered with provider [{}].", mailId, user.getProvider());
+            throw new UsernameNotFoundException("Please sign in using your " + user.getProvider() + " account.");
+        }
 
         List<SimpleGrantedAuthority> authorities = user.getRole().getPermissions().stream()
                 .map(p -> new SimpleGrantedAuthority(p.getPermissionKey()))
@@ -47,7 +52,7 @@ public class AppUserDetailsService implements UserDetailsService {
         } else if ("INACTIVE".equalsIgnoreCase(user.getStatus())) {
             log.warn("Authentication attempted for inactive account [{}].", mailId);
         } else {
-            log.info("User details loaded successfully for username [{}].", mailId);
+            log.debug("User details loaded successfully for username [{}].", mailId);
         }
 
         return User.builder()

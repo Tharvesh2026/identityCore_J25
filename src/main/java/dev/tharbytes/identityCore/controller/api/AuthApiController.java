@@ -98,7 +98,7 @@ public class AuthApiController {
             throw new ValidationException("Username must be 3-30 characters");
         }
 
-        UserEntity updated = userService.updateProfile(current.getId(), name, username, email);
+        UserEntity updated = userService.updateProfile(current.getId(), name, username, email, req.getBusinessName(), req.getLocation());
         log.info("Profile updated successfully for user [{}].", current.getId());
         return ResponseEntity.ok(ApiResponse.ok("Profile updated", UserResponse.from(updated)));
     }

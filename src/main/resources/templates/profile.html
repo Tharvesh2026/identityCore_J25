@@ -169,6 +169,14 @@
                                 <span class="ic-info-value" th:text="${user.mailId}">email</span>
                             </div>
                             <div class="ic-info-row">
+                                <span class="ic-info-label">Business Name</span>
+                                <span class="ic-info-value" th:text="${user.businessName != null ? user.businessName : 'N/A'}">Business</span>
+                            </div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">Location</span>
+                                <span class="ic-info-value" th:text="${user.location != null ? user.location : 'N/A'}">Location</span>
+                            </div>
+                            <div class="ic-info-row">
                                 <span class="ic-info-label">Account status</span>
                                 <span class="ic-tag"
                                       th:classappend="${'ACTIVE'.equalsIgnoreCase(user.status)} ? 'tag-active' : 'tag-inactive'"
@@ -190,6 +198,14 @@
                             <div class="ic-info-row">
                                 <span class="ic-info-label">Permission source</span>
                                 <span style="font-size:12px; color:var(--text-2);">DB per-request</span>
+                            </div>
+                            <div class="ic-info-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                                <span class="ic-info-label">Active Permissions</span>
+                                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;">
+                                    <span class="ic-info-mono" style="font-size: 11px; padding: 3px 8px; background: var(--surface-2); border-radius: 4px; border: 1px solid var(--border);"
+                                          th:each="perm : ${userPermissions}" th:text="${perm}">PERM_KEY</span>
+                                    <span style="font-size: 12px; color: var(--text-3);" th:if="${#lists.isEmpty(userPermissions)}">No permissions assigned</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -228,6 +244,22 @@
                                     <i class="ti ti-mail"></i>
                                     <input type="email" class="ic-input" id="editEmail" name="email"
                                            th:value="${user.mailId}" placeholder="you@example.com" required>
+                                </div>
+                            </div>
+                            <div class="ic-form-group">
+                                <label class="ic-label" for="editBusinessName">Business Name</label>
+                                <div class="ic-input-icon">
+                                    <i class="ti ti-building"></i>
+                                    <input type="text" class="ic-input" id="editBusinessName" name="businessName"
+                                           th:value="${user.businessName}" placeholder="Your business name">
+                                </div>
+                            </div>
+                            <div class="ic-form-group">
+                                <label class="ic-label" for="editLocation">Location</label>
+                                <div class="ic-input-icon">
+                                    <i class="ti ti-map-pin"></i>
+                                    <input type="text" class="ic-input" id="editLocation" name="location"
+                                           th:value="${user.location}" placeholder="Your location">
                                 </div>
                             </div>
                             <div style="display:flex; gap:10px; margin-top:4px;">

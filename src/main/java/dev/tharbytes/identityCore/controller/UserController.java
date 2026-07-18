@@ -97,6 +97,22 @@ public class UserController {
                 log.info("ACTION=PASSWORD_RESET | BY={} | TARGET={}", currentUser.getUsername(), target.getUsername());
                 ra.addFlashAttribute("success", "Password reset successfully");
             }
+            case "deleteUser" -> {
+                if (!userService.hasPermission(currentUser.getId(), "USER_DELETE")) {
+                    log.warn("USER_DELETE denied for user [{}] trying to delete user [{}].", currentUser.getUsername(), id);
+                    ra.addFlashAttribute("error", "You do not have permission to delete users.");
+                    return "redirect:/users";
+                }
+                if (currentUser.getId().equals(id)) {
+                    ra.addFlashAttribute("error", "You cannot delete your own account.");
+                    return "redirect:/manage-user?id=" + id;
+                }
+                UserEntity target = userService.getById(id);
+                userService.deleteUser(id);
+                log.info("ACTION=USER_DELETE | BY={} | TARGET={}", currentUser.getUsername(), target.getUsername());
+                ra.addFlashAttribute("success", "User deleted successfully");
+                return "redirect:/users";
+            }
             default -> {
                 log.warn("Invalid user management action [{}] attempted by [{}] on user [{}].", action, currentUser.getUsername(), id);
                 ra.addFlashAttribute("error", "Invalid action");
@@ -113,6 +129,11 @@ public class UserController {
             @RequestParam String email,
             @RequestParam String username,
             @RequestParam String password,
+            @RequestParam(required = false) String businessName,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String awsAccountId,
+            @RequestParam(required = false) String gcpProjectId,
+            @RequestParam(required = false) String azureSubscriptionId,
             RedirectAttributes ra) throws MessagingException, IOException {
 
         if (name == null || name.isBlank()) { log.warn("Registration validation failed: name is required."); ra.addFlashAttribute("error", "Name is required"); return "redirect:/login?tab=register"; }
@@ -120,9 +141,15 @@ public class UserController {
         if (email == null || !email.contains("@")) { log.warn("Registration validation failed for username [{}]: invalid email address.", username); ra.addFlashAttribute("error", "Invalid email address"); return "redirect:/login?tab=register"; }
         if (password == null || password.length() < 6) { log.warn("Registration validation failed for username [{}]: password too short.", username); ra.addFlashAttribute("error", "Password must be at least 6 characters"); return "redirect:/login?tab=register"; }
 
-        userService.register(name, username, email, password);
-        ra.addFlashAttribute("success", "Registration successful. Please login.");
-        log.info("User registered: {}", username);
-        return "redirect:/login";
+        try {
+            userService.register(name, username, email, password, businessName, location, awsAccountId, gcpProjectId, azureSubscriptionId);
+            ra.addFlashAttribute("success", "Registration successful. Please check your email for the 6-digit verification code, then sign in to verify your account.");
+            log.info("User registered (pending verification): {}", username);
+            return "redirect:/login";
+        } catch (Exception e) {
+            log.warn("Registration failed for username [{}]: {}", username, e.getMessage());
+            ra.addFlashAttribute("error", e.getMessage());
+            return "redirect:/login?tab=register";
+        }
     }
 }
