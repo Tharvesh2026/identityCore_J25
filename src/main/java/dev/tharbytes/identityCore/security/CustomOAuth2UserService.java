@@ -58,7 +58,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         }
         email = email.toLowerCase();
 
-        UserEntity user = provisioner.resolveOrProvisionUser(email, resolveName(oAuth2User), registrationId);
+        String avatarUrl = oAuth2User.getAttribute("avatar_url");
+        UserEntity user = provisioner.resolveOrProvisionUser(email, resolveName(oAuth2User), registrationId, avatarUrl);
 
         if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
             log.warn("OAuth2 login denied via provider [{}] for user [{}]: account status is [{}].",

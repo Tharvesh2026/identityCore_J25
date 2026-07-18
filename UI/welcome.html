@@ -40,6 +40,24 @@
             <p class="page-sub">Security session monitoring dashboard and credentials overview.</p>
         </div>
 
+        <!-- Business Details Warning -->
+        <div class="card p-4 mb-4 border-warning bg-warning-subtle d-none" id="business-warning-card" style="background-color: rgba(245, 158, 11, 0.05) !important;">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-dark border border-warning border-opacity-25 rounded d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
+                        <i class="ti ti-building text-warning fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white mb-0 fw-semibold">Business Details Required</h6>
+                        <p class="text-secondary small mb-0">Please complete your registration by entering your company/business details in the profile tab.</p>
+                    </div>
+                </div>
+                <a href="profile.html" class="btn btn-warning d-flex align-items-center gap-1">
+                    <i class="ti ti-edit"></i> Enter Details
+                </a>
+            </div>
+        </div>
+
         <!-- Dashboard Grid Layout -->
         <div class="row g-4">
             
@@ -118,6 +136,13 @@
         // Populate elements
         document.getElementById("welcome-name").textContent = user.name;
         document.getElementById("profile-name").textContent = user.name;
+
+        if (user.provider !== 'LOCAL' && (!user.businessName || !user.location)) {
+            const warningEl = document.getElementById("business-warning-card");
+            if (warningEl) {
+                warningEl.classList.remove("d-none");
+            }
+        }
         document.getElementById("profile-username").textContent = user.username;
         document.getElementById("profile-email").textContent = user.email;
         

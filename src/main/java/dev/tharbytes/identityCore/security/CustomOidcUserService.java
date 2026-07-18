@@ -53,8 +53,9 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         email = email.toLowerCase();
 
         String displayName = oidcUser.getFullName() != null ? oidcUser.getFullName() : email;
+        String avatarUrl = oidcUser.getPicture() != null ? oidcUser.getPicture() : oidcUser.getAttribute("picture");
 
-        UserEntity user = provisioner.resolveOrProvisionUser(email, displayName, registrationId);
+        UserEntity user = provisioner.resolveOrProvisionUser(email, displayName, registrationId, avatarUrl);
 
         if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
             log.warn("OIDC login denied via provider [{}] for user [{}]: account status is [{}].",

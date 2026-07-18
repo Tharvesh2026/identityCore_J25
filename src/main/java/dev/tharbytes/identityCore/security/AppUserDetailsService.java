@@ -37,7 +37,8 @@ public class AppUserDetailsService implements UserDetailsService {
 
         if (!"LOCAL".equalsIgnoreCase(user.getProvider())) {
             log.warn("Form login denied for OAuth2 user [{}]: registered with provider [{}].", mailId, user.getProvider());
-            throw new UsernameNotFoundException("Please sign in using your " + user.getProvider() + " account.");
+            String providerName = user.getProvider().substring(0, 1).toUpperCase() + user.getProvider().substring(1).toLowerCase();
+            throw new UsernameNotFoundException("Your account is connected with " + providerName + ". Please login with " + providerName + ".");
         }
 
         List<SimpleGrantedAuthority> authorities = user.getRole().getPermissions().stream()

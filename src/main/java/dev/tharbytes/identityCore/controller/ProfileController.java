@@ -51,8 +51,20 @@ public class ProfileController {
         log.info("Profile action [{}] requested by user [{}].", action, user.getId());
 
         if ("updateProfile".equals(action)) {
+            if (!user.isVerified()) {
+                ra.addFlashAttribute("error", "Account verification is required to update profile details.");
+                return "redirect:/profile";
+            }
             return handleUpdateProfile(user, name, username, email, businessName, location, ra);
         } else if ("changePassword".equals(action)) {
+            if (!user.isVerified()) {
+                ra.addFlashAttribute("error", "Account verification is required to change password.");
+                return "redirect:/profile";
+            }
+            if (!"LOCAL".equalsIgnoreCase(user.getProvider())) {
+                ra.addFlashAttribute("error", "Password change is not supported for linked accounts.");
+                return "redirect:/profile";
+            }
             return handleChangePassword(user, currentPassword, newPassword, confirmPassword, ra);
         }
 

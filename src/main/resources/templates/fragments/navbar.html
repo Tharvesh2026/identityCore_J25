@@ -20,7 +20,11 @@
     <div style="padding: 12px 10px;">
         <div style="display:flex; align-items:center; gap:9px; padding: 8px 10px;
                     background: var(--surface-2); border-radius: var(--radius-sm);">
-            <div class="ic-avatar av-purple" style="font-size:12px;"
+            <img th:if="${user.avatarUrl != null && !user.avatarUrl.isEmpty()}" 
+                 th:src="${user.avatarUrl}" 
+                 class="ic-avatar" style="object-fit: cover; width: 28px; height: 28px; border-radius: 50%;" alt="Avatar">
+            <div th:unless="${user.avatarUrl != null && !user.avatarUrl.isEmpty()}" 
+                 class="ic-avatar av-purple" style="font-size:12px;"
                  th:text="${#strings.toUpperCase(#strings.substring(user.name, 0, 1))}">U</div>
             <div style="overflow:hidden;">
                 <div style="font-size:13px; font-weight:500; color:var(--text-1);

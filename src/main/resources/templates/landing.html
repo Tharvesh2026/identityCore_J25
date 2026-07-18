@@ -54,6 +54,12 @@
             <h1>Welcome to i.Core</h1>
             <p class="sub">Choose how you'd like to continue.</p>
 
+            <!-- Dynamic Error Alert -->
+            <div th:if="${param.error}" style="padding: 10px 12px; background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; border-radius: 6px; font-size: 12.5px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+                <i class="ti ti-alert-circle" style="font-size: 16px;"></i>
+                <span th:text="${param.error[0]}">Error message</span>
+            </div>
+
             <a th:href="@{/login}" class="auth-btn email">
                 <i class="ti ti-mail"></i> Continue with Email &amp; Password
             </a>

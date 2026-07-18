@@ -80,6 +80,9 @@ public class AuthApiController {
     public ResponseEntity<ApiResponse<UserResponse>> updateProfile(@RequestBody UpdateProfileRequest req) {
         UserEntity current = authHelper.requireCurrentUser();
         log.info("Profile update request received for user [{}].", current.getId());
+        if (!current.isVerified()) {
+            throw new ValidationException("Account verification is required to update profile details.");
+        }
 
         String name = ValidationUtil.sanitizeName(req.getName());
         String username = ValidationUtil.sanitizeUsername(req.getUsername());
@@ -109,6 +112,12 @@ public class AuthApiController {
     public ResponseEntity<ApiResponse<?>> changePassword(@RequestBody ChangePasswordRequest req) {
         UserEntity current = authHelper.requireCurrentUser();
         log.info("Password change request received for user [{}].", current.getId());
+        if (!current.isVerified()) {
+            throw new ValidationException("Account verification is required to change password.");
+        }
+        if (!"LOCAL".equalsIgnoreCase(current.getProvider())) {
+            throw new ValidationException("Password change is not supported for linked accounts.");
+        }
 
         if (isBlank(req.getCurrentPassword()) || isBlank(req.getNewPassword()) || isBlank(req.getConfirmPassword())) {
             log.warn("Password change validation failed for user [{}]: missing required fields.", current.getId());

@@ -46,6 +46,26 @@
                 </div>
             </div>
 
+            <!-- OAuth Complete Business Details Card -->
+            <div class="ic-card ic-card-padded" th:if="${!'LOCAL'.equals(user.provider) && (user.businessName == null || user.businessName.isEmpty() || user.location == null || user.location.isEmpty())}" style="border: 1px solid var(--amber, #D97706); background: rgba(217, 119, 6, 0.05); margin-bottom: 20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:32px; height:32px; border-radius:8px;
+                                    background: rgba(217, 119, 6, 0.15);
+                                    display:flex; align-items:center; justify-content:center;">
+                            <i class="ti ti-building" style="font-size:17px; color:var(--amber, #D97706);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:14px; font-weight:600; color:var(--text-1);">Business Details Required</div>
+                            <div style="font-size:12px; color:var(--text-3);">Please complete your registration by entering your company/business details in the profile settings.</div>
+                        </div>
+                    </div>
+                    <a th:href="@{/profile?tab=edit}" class="ic-btn" style="background:var(--amber, #D97706); border-color:var(--amber, #D97706); color:#fff; text-decoration:none;">
+                        <i class="ti ti-edit"></i> Enter Details
+                    </a>
+                </div>
+            </div>
+
             <!-- User profile card -->
             <div class="ic-card ic-card-padded" style="margin-bottom: 20px;">
 

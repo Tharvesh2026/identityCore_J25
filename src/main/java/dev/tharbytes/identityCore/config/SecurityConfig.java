@@ -138,12 +138,17 @@ public class SecurityConfig {
                             }
                         })
                         .failureHandler((request, response, exception) -> {
+                            String errorMsg = "Invalid email or password";
+                            if (exception != null && exception.getMessage() != null && exception.getMessage().contains("connected with")) {
+                                errorMsg = exception.getMessage();
+                            }
                             if (request.getHeader("Accept") != null && request.getHeader("Accept").contains("application/json")) {
                                 response.setStatus(401);
                                 response.setContentType("application/json;charset=UTF-8");
-                                response.getWriter().write("{\"success\":false,\"message\":\"Invalid email or password\"}");
+                                response.getWriter().write("{\"success\":false,\"message\":\"" + errorMsg + "\"}");
                             } else {
-                                response.sendRedirect("/login?error=Invalid+email+or+password");
+                                String redirectUrl = "/?error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+                                response.sendRedirect(redirectUrl);
                             }
                         })
                         .permitAll()

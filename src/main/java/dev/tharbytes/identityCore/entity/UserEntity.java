@@ -52,6 +52,9 @@ public class UserEntity {
     @Column(name = "azure_subscription_id", length = 100)
     private String azureSubscriptionId;
 
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
+
     @Column(name = "verification_otp", length = 6)
     private String verificationOtp;
 
@@ -206,6 +209,14 @@ public class UserEntity {
 
     public void setOtpExpiresAt(java.time.LocalDateTime otpExpiresAt) {
         this.otpExpiresAt = otpExpiresAt;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public java.time.LocalDateTime getCreatedAt() {

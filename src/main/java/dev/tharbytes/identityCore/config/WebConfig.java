@@ -15,6 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(verificationInterceptor);
+        // Disabled redirection block to allow unverified users to see settings/profile and trigger verification manually.
+        // registry.addInterceptor(verificationInterceptor);
     }
 }

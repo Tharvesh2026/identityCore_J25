@@ -30,6 +30,13 @@
             padding: 5px 11px; border-radius: 50px;
             font-size: 12px; font-weight: 500;
         }
+        .blur-overlay-container { position: relative; }
+        .blur-content { filter: blur(4px); pointer-events: none; user-select: none; }
+        .blur-overlay {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            background: rgba(15, 23, 42, 0.45); color: #fff; font-size: 13px; font-weight: 500;
+            text-align: center; padding: 20px; border-radius: var(--radius-md); z-index: 10;
+        }
     </style>
 </head>
 <body>
@@ -56,6 +63,29 @@
                 <div>
                     <div class="ic-page-title">Settings</div>
                     <div class="ic-page-sub">View your active session details and security status.</div>
+                </div>
+            </div>
+
+            <!-- Verification Required Alert Card -->
+            <div class="ic-card ic-card-padded" th:if="${!user.verified}" style="border: 1px solid var(--amber, #D97706); background: rgba(217, 119, 6, 0.05); margin-bottom: 20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:32px; height:32px; border-radius:8px;
+                                    background: rgba(217, 119, 6, 0.15);
+                                    display:flex; align-items:center; justify-content:center;">
+                            <i class="ti ti-alert-triangle" style="font-size:17px; color:var(--amber, #D97706);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:14px; font-weight:600; color:var(--text-1);">Account verification required</div>
+                            <div style="font-size:12px; color:var(--text-3);">Please verify your email address to enable settings panels and view session details.</div>
+                        </div>
+                    </div>
+                    <form th:action="@{/verify-otp/resend}" method="post" style="margin:0;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="ic-btn" style="background:var(--amber, #D97706); border-color:var(--amber, #D97706); color:#fff; cursor:pointer;">
+                            <i class="ti ti-mail-forward"></i> Send Verification Code
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -98,32 +128,37 @@
                     </div>
 
                     <!-- Session metadata -->
-                    <div class="ic-card ic-card-padded">
-                        <div style="font-size:13px; font-weight:500; color:var(--text-2);
-                                    margin-bottom:14px; display:flex; align-items:center; gap:6px;">
-                            <i class="ti ti-database" style="font-size:17px; color:var(--brand);"></i>
-                            Session metadata
+                    <div th:class="${!user.verified} ? 'ic-card ic-card-padded blur-overlay-container' : 'ic-card ic-card-padded'">
+                        <div th:class="${!user.verified} ? 'blur-content' : ''">
+                            <div style="font-size:13px; font-weight:500; color:var(--text-2);
+                                        margin-bottom:14px; display:flex; align-items:center; gap:6px;">
+                                <i class="ti ti-database" style="font-size:17px; color:var(--brand);"></i>
+                                Session metadata
+                            </div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">Session ID</span>
+                                <span class="ic-info-mono" id="sid"
+                                      style="font-size:11px; max-width:180px;
+                                             overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
+                                      th:title="${sessionId}" th:text="${sessionId}">---</span>
+                            </div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">Created at</span>
+                                <span class="ic-info-mono" id="creationTime"
+                                      th:text="${sessionCreation}">---</span>
+                            </div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">Last accessed</span>
+                                <span class="ic-info-mono" id="lastAccessTime"
+                                      th:text="${sessionLastAccess}">---</span>
+                            </div>
+                            <div class="ic-info-row">
+                                <span class="ic-info-label">Max idle timeout</span>
+                                <span class="ic-info-mono" th:text="${sessionTimeout + 's'}">600s</span>
+                            </div>
                         </div>
-                        <div class="ic-info-row">
-                            <span class="ic-info-label">Session ID</span>
-                            <span class="ic-info-mono" id="sid"
-                                  style="font-size:11px; max-width:180px;
-                                         overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
-                                  th:title="${sessionId}" th:text="${sessionId}">---</span>
-                        </div>
-                        <div class="ic-info-row">
-                            <span class="ic-info-label">Created at</span>
-                            <span class="ic-info-mono" id="creationTime"
-                                  th:text="${sessionCreation}">---</span>
-                        </div>
-                        <div class="ic-info-row">
-                            <span class="ic-info-label">Last accessed</span>
-                            <span class="ic-info-mono" id="lastAccessTime"
-                                  th:text="${sessionLastAccess}">---</span>
-                        </div>
-                        <div class="ic-info-row">
-                            <span class="ic-info-label">Max idle timeout</span>
-                            <span class="ic-info-mono" th:text="${sessionTimeout + 's'}">600s</span>
+                        <div class="blur-overlay" th:if="${!user.verified}">
+                            <span><i class="ti ti-lock" style="font-size:16px; vertical-align:middle; margin-right:4px;"></i> Verify to view session metadata</span>
                         </div>
                     </div>
 
@@ -151,53 +186,58 @@
                     </div>
 
                     <!-- Security status -->
-                    <div class="ic-card ic-card-padded">
-                        <div style="font-size:13px; font-weight:500; color:var(--text-2);
-                                    margin-bottom:14px; display:flex; align-items:center; gap:6px;">
-                            <i class="ti ti-shield-check" style="font-size:17px; color:var(--brand);"></i>
-                            Security status
+                    <div th:class="${!user.verified} ? 'ic-card ic-card-padded blur-overlay-container' : 'ic-card ic-card-padded'">
+                        <div th:class="${!user.verified} ? 'blur-content' : ''">
+                            <div style="font-size:13px; font-weight:500; color:var(--text-2);
+                                        margin-bottom:14px; display:flex; align-items:center; gap:6px;">
+                                <i class="ti ti-shield-check" style="font-size:17px; color:var(--brand);"></i>
+                                Security status
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:8px;">
+                                <div style="display:flex; align-items:center; justify-content:space-between;
+                                            padding:10px 12px; background:var(--surface-2);
+                                            border-radius:var(--radius-sm);">
+                                    <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-2);">
+                                        <i class="ti ti-key" style="color:var(--brand);"></i> CSRF protection
+                                    </div>
+                                    <span class="ic-security-badge" style="background:var(--green-bg); color:var(--green);">
+                                        <span class="ic-dot ic-dot-green"></span> Active
+                                    </span>
+                                </div>
+                                <div style="display:flex; align-items:center; justify-content:space-between;
+                                            padding:10px 12px; background:var(--surface-2);
+                                            border-radius:var(--radius-sm);">
+                                    <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-2);">
+                                        <i class="ti ti-refresh" style="color:var(--brand);"></i> Session refresh
+                                    </div>
+                                    <span class="ic-security-badge" style="background:var(--green-bg); color:var(--green);">
+                                        <span class="ic-dot ic-dot-green"></span> Enabled
+                                    </span>
+                                </div>
+                                <div style="display:flex; align-items:center; justify-content:space-between;
+                                            padding:10px 12px; background:var(--surface-2);
+                                            border-radius:var(--radius-sm);">
+                                    <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-2);">
+                                        <i class="ti ti-database" style="color:var(--brand);"></i> Permission source
+                                    </div>
+                                    <span class="ic-security-badge" style="background:var(--blue-bg); color:var(--blue);">
+                                        DB per-request
+                                    </span>
+                                </div>
+                                <div style="display:flex; align-items:center; justify-content:space-between;
+                                            padding:10px 12px; background:var(--surface-2);
+                                            border-radius:var(--radius-sm);">
+                                    <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-2);">
+                                        <i class="ti ti-lock" style="color:var(--brand);"></i> Spring Security
+                                    </div>
+                                    <span class="ic-security-badge" style="background:var(--green-bg); color:var(--green);">
+                                        <span class="ic-dot ic-dot-green"></span> Active
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div style="display:flex; flex-direction:column; gap:8px;">
-                            <div style="display:flex; align-items:center; justify-content:space-between;
-                                        padding:10px 12px; background:var(--surface-2);
-                                        border-radius:var(--radius-sm);">
-                                <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-2);">
-                                    <i class="ti ti-key" style="color:var(--brand);"></i> CSRF protection
-                                </div>
-                                <span class="ic-security-badge" style="background:var(--green-bg); color:var(--green);">
-                                    <span class="ic-dot ic-dot-green"></span> Active
-                                </span>
-                            </div>
-                            <div style="display:flex; align-items:center; justify-content:space-between;
-                                        padding:10px 12px; background:var(--surface-2);
-                                        border-radius:var(--radius-sm);">
-                                <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-2);">
-                                    <i class="ti ti-refresh" style="color:var(--brand);"></i> Session refresh
-                                </div>
-                                <span class="ic-security-badge" style="background:var(--green-bg); color:var(--green);">
-                                    <span class="ic-dot ic-dot-green"></span> Enabled
-                                </span>
-                            </div>
-                            <div style="display:flex; align-items:center; justify-content:space-between;
-                                        padding:10px 12px; background:var(--surface-2);
-                                        border-radius:var(--radius-sm);">
-                                <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-2);">
-                                    <i class="ti ti-database" style="color:var(--brand);"></i> Permission source
-                                </div>
-                                <span class="ic-security-badge" style="background:var(--blue-bg); color:var(--blue);">
-                                    DB per-request
-                                </span>
-                            </div>
-                            <div style="display:flex; align-items:center; justify-content:space-between;
-                                        padding:10px 12px; background:var(--surface-2);
-                                        border-radius:var(--radius-sm);">
-                                <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-2);">
-                                    <i class="ti ti-lock" style="color:var(--brand);"></i> Spring Security
-                                </div>
-                                <span class="ic-security-badge" style="background:var(--green-bg); color:var(--green);">
-                                    <span class="ic-dot ic-dot-green"></span> Active
-                                </span>
-                            </div>
+                        <div class="blur-overlay" th:if="${!user.verified}">
+                            <span><i class="ti ti-lock" style="font-size:16px; vertical-align:middle; margin-right:4px;"></i> Verify to view security status</span>
                         </div>
                     </div>
 

@@ -28,10 +28,14 @@ function initNavbar(user) {
     <!-- User pill -->
     <div class="sidebar-user">
         <div class="user-pill">
+            ${user.avatarUrl ? `
+            <img src="${user.avatarUrl}" style="width: 32px; height: 32px; border-radius: 6px; object-fit: cover;" alt="Avatar">
+            ` : `
             <div class="d-flex align-items-center justify-content-center text-white font-weight-bold" 
                  style="width: 32px; height: 32px; border-radius: 6px; background-color: var(--brand); font-size: 13px;">
                 ${user.name.charAt(0).toUpperCase()}
             </div>
+            `}
             <div style="overflow:hidden; line-height:1.2;">
                 <div style="font-size:13px; font-weight:600; color:var(--text-white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                     ${user.name}

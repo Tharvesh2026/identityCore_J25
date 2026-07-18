@@ -105,7 +105,6 @@ public class UserService {
 
         UserEntity saved = userRepository.save(user);
         log.info("User registered (pending verification): {}", saved.getUsername());
-        emailService.sendOtpVerificationEmail(email.toLowerCase(), otp);
         return saved;
     }
 

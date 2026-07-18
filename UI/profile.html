@@ -9,6 +9,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
     <link rel="stylesheet" href="assets/icore.css">
+    <style>
+        .blur-overlay-container { position: relative; }
+        .blur-content { filter: blur(4px); pointer-events: none; user-select: none; }
+        .blur-overlay {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            background: rgba(15, 23, 42, 0.45); color: #fff; font-size: 13px; font-weight: 500;
+            text-align: center; padding: 20px; border-radius: 6px; z-index: 10;
+        }
+    </style>
 </head>
 <body>
 
@@ -57,81 +66,107 @@
                         </li>
                     </ul>
 
-                    <!-- Edit Profile Form -->
-                    <form id="edit-profile-form" onsubmit="handleUpdateProfile(event)">
-                        <div class="mb-3">
-                            <label class="form-label">Full name</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-user"></i></span>
-                                <input type="text" id="profile-name-input" class="form-control" required>
+                    <!-- Edit Profile Wrapper -->
+                    <div id="edit-profile-wrapper">
+                        <form id="edit-profile-form" onsubmit="handleUpdateProfile(event)">
+                            <div class="mb-3">
+                                <label class="form-label">Full name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-user"></i></span>
+                                    <input type="text" id="profile-name-input" class="form-control" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Username</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-at"></i></span>
-                                <input type="text" id="profile-username-input" class="form-control" required>
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-at"></i></span>
+                                    <input type="text" id="profile-username-input" class="form-control" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email address</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-mail"></i></span>
-                                <input type="email" id="profile-email-input" class="form-control" required>
+                            <div class="mb-3">
+                                <label class="form-label">Email address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-mail"></i></span>
+                                    <input type="email" id="profile-email-input" class="form-control" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Business Name</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-building"></i></span>
-                                <input type="text" id="profile-business-input" class="form-control" placeholder="Your business name">
+                            <div class="mb-3">
+                                <label class="form-label">Business Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-building"></i></span>
+                                    <input type="text" id="profile-business-input" class="form-control" placeholder="Your business name">
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">Location</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-map-pin"></i></span>
-                                <input type="text" id="profile-location-input" class="form-control" placeholder="Your location">
+                            <div class="mb-4">
+                                <label class="form-label">Location</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-map-pin"></i></span>
+                                    <input type="text" id="profile-location-input" class="form-control" placeholder="Your location">
+                                </div>
                             </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
-                            <i class="ti ti-device-floppy"></i> Save profile changes
-                        </button>
-                    </form>
+                            <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                                <i class="ti ti-device-floppy"></i> Save profile changes
+                            </button>
+                        </form>
+                    </div>
 
-                    <!-- Change Password Form -->
-                    <form id="change-password-form" onsubmit="handleChangePassword(event)" class="d-none">
-                        <div class="mb-3">
-                            <label class="form-label">Current password</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-lock"></i></span>
-                                <input type="password" id="current-password" class="form-control" placeholder="••••••••" required>
+                    <!-- Change Password Wrapper -->
+                    <div id="change-password-wrapper" class="d-none">
+                        <form id="change-password-form" onsubmit="handleChangePassword(event)">
+                            <div class="mb-3">
+                                <label class="form-label">Current password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-lock"></i></span>
+                                    <input type="password" id="current-password" class="form-control" placeholder="••••••••" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">New password</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-lock-open"></i></span>
-                                <input type="password" id="new-password" class="form-control" placeholder="Min. 6 characters" required minlength="6">
+                            <div class="mb-3">
+                                <label class="form-label">New password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-lock-open"></i></span>
+                                    <input type="password" id="new-password" class="form-control" placeholder="Min. 6 characters" required minlength="6">
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">Confirm new password</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-lock-check"></i></span>
-                                <input type="password" id="confirm-password" class="form-control" placeholder="••••••••" required minlength="6">
+                            <div class="mb-4">
+                                <label class="form-label">Confirm new password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary text-secondary"><i class="ti ti-lock-check"></i></span>
+                                    <input type="password" id="confirm-password" class="form-control" placeholder="••••••••" required minlength="6">
+                                </div>
                             </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
-                            <i class="ti ti-key"></i> Update credentials
-                        </button>
-                    </form>
+                            <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                                <i class="ti ti-key"></i> Update credentials
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
             <!-- Right panel info tags -->
             <div class="col-lg-4">
-                <div class="card p-4">
+                <!-- Account Status Card -->
+                <div class="card p-4 mb-4" id="account-status-card">
+                    <h5 class="card-title fs-6 fw-semibold mb-3">Account Status</h5>
+                    <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-25 align-items-center">
+                        <span class="small text-secondary">Status</span>
+                        <span class="badge" id="account-status-badge">Not verified</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-25 align-items-center">
+                        <span class="small text-secondary">Joined on</span>
+                        <span class="small text-white" id="account-joined-date">N/A</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-25 align-items-center">
+                        <span class="small text-secondary">Auth Method</span>
+                        <span class="small text-white" id="account-auth-method">N/A</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2 align-items-center d-none" id="account-verification-source-row">
+                        <span class="small text-secondary">Verification</span>
+                        <span class="small text-success fw-medium" id="account-verification-source">N/A</span>
+                    </div>
+                </div>
+
+                <!-- Active Privileges Card -->
+                <div class="card p-4" id="privileges-card">
                     <h5 class="card-title fs-6 fw-semibold mb-3">Active Privileges</h5>
                     <div id="permissions-list" class="d-flex flex-column gap-2">
                         <!-- Injected dynamically -->
@@ -176,6 +211,65 @@
         } else {
             permContainer.innerHTML = `<span class="text-secondary small">No permissions assigned</span>`;
         }
+
+        // Apply metadata and status
+        const statusBadge = document.getElementById("account-status-badge");
+        if (currentUser.verified) {
+            statusBadge.className = "badge bg-success";
+            statusBadge.textContent = "Verified";
+            
+            // Show verification source
+            document.getElementById("account-verification-source-row").classList.remove("d-none");
+            const prov = currentUser.provider || 'LOCAL';
+            const provName = prov === 'LOCAL' ? 'tharbytes.io' : (prov === 'GOOGLE' ? 'Google' : 'GitHub');
+            document.getElementById("account-verification-source").textContent = "You're verified with " + provName;
+        } else {
+            statusBadge.className = "badge bg-warning text-dark";
+            statusBadge.textContent = "Not verified";
+        }
+        
+        if (currentUser.createdAt) {
+            document.getElementById("account-joined-date").textContent = new Date(currentUser.createdAt).toLocaleString();
+        }
+        
+        const prov = currentUser.provider || 'LOCAL';
+        document.getElementById("account-auth-method").textContent = prov === 'LOCAL' ? 'Form Registration' : prov.charAt(0) + prov.slice(1).toLowerCase() + ' OAuth';
+
+        // Apply blur wrappers dynamically if not verified
+        if (!currentUser.verified) {
+            // Blur privileges card
+            const privilegesCard = document.getElementById("privileges-card");
+            if (privilegesCard) {
+                privilegesCard.classList.add("blur-overlay-container");
+                const innerHtml = privilegesCard.innerHTML;
+                privilegesCard.innerHTML = `<div class="blur-content">${innerHtml}</div><div class="blur-overlay"><span><i class="ti ti-lock" style="font-size:16px; vertical-align:middle; margin-right:4px;"></i> Verify to see your Access and permission</span></div>`;
+            }
+            
+            // Blur edit profile wrapper
+            const editWrapper = document.getElementById("edit-profile-wrapper");
+            if (editWrapper) {
+                editWrapper.classList.add("blur-overlay-container");
+                const innerHtml = editWrapper.innerHTML;
+                editWrapper.innerHTML = `<div class="blur-content">${innerHtml}</div><div class="blur-overlay"><span><i class="ti ti-lock" style="font-size:16px; vertical-align:middle; margin-right:4px;"></i> Verify to edit your account info</span></div>`;
+            }
+
+            // Blur change password wrapper
+            const passWrapper = document.getElementById("change-password-wrapper");
+            if (passWrapper) {
+                passWrapper.classList.add("blur-overlay-container");
+                const innerHtml = passWrapper.innerHTML;
+                passWrapper.innerHTML = `<div class="blur-content">${innerHtml}</div><div class="blur-overlay"><span><i class="ti ti-lock" style="font-size:16px; vertical-align:middle; margin-right:4px;"></i> Verify to change password</span></div>`;
+            }
+        } else if (currentUser.provider !== 'LOCAL') {
+            // If verified but not local (OAuth user), blur the password wrapper
+            const passWrapper = document.getElementById("change-password-wrapper");
+            if (passWrapper) {
+                passWrapper.classList.add("blur-overlay-container");
+                const innerHtml = passWrapper.innerHTML;
+                const provLabel = currentUser.provider === 'GOOGLE' ? 'Google' : 'GitHub';
+                passWrapper.innerHTML = `<div class="blur-content">${innerHtml}</div><div class="blur-overlay"><span><i class="ti ti-brand-oauth" style="font-size:16px; vertical-align:middle; margin-right:4px;"></i> Your account is connected with ${provLabel}.</span></div>`;
+            }
+        }
     });
 
     function populateForm(user) {
@@ -187,8 +281,8 @@
     }
 
     function switchProfileTab(tab) {
-        const editForm = document.getElementById("edit-profile-form");
-        const passForm = document.getElementById("change-password-form");
+        const editForm = document.getElementById("edit-profile-wrapper");
+        const passForm = document.getElementById("change-password-wrapper");
         const tabEdit = document.getElementById("tab-edit");
         const tabPass = document.getElementById("tab-password");
 

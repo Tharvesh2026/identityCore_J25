@@ -34,9 +34,13 @@ public class OAuth2UserProvisioner {
     }
 
     @Transactional
-    public UserEntity resolveOrProvisionUser(String email, String displayName, String registrationId) {
-        return userRepository.findByMailId(email)
+    public UserEntity resolveOrProvisionUser(String email, String displayName, String registrationId, String avatarUrl) {
+        UserEntity user = userRepository.findByMailId(email)
                 .orElseGet(() -> provisionGuestUser(email, displayName, registrationId));
+        if (avatarUrl != null && !avatarUrl.isBlank()) {
+            user.setAvatarUrl(avatarUrl);
+        }
+        return userRepository.save(user);
     }
 
     public List<SimpleGrantedAuthority> authoritiesFor(UserEntity user) {
@@ -55,7 +59,7 @@ public class OAuth2UserProvisioner {
         user.setName(displayName);
         user.setUsername(generateUniqueUsername(email));
         user.setMailId(email);
-        user.setPassword(GUEST_PASSWORD_HASH);
+        user.setPassword("");
         user.setRole(defaultRole);
         user.setStatus("ACTIVE");
         user.setProvider(registrationId.toUpperCase());

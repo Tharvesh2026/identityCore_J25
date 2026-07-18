@@ -19,6 +19,7 @@ public class UserResponse {
     private String awsAccountId;
     private String gcpProjectId;
     private String azureSubscriptionId;
+    private String avatarUrl;
     private java.time.LocalDateTime createdAt;
     private java.time.LocalDateTime updatedAt;
 
@@ -26,7 +27,7 @@ public class UserResponse {
 
     public UserResponse(Long id, String name, String email, String username, String role, String status, List<String> permissions,
                         String provider, boolean verified, String businessName, String location,
-                        String awsAccountId, String gcpProjectId, String azureSubscriptionId,
+                        String awsAccountId, String gcpProjectId, String azureSubscriptionId, String avatarUrl,
                         java.time.LocalDateTime createdAt, java.time.LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
@@ -42,6 +43,7 @@ public class UserResponse {
         this.awsAccountId = awsAccountId;
         this.gcpProjectId = gcpProjectId;
         this.azureSubscriptionId = azureSubscriptionId;
+        this.avatarUrl = avatarUrl;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -69,6 +71,7 @@ public class UserResponse {
             u.getAwsAccountId(),
             u.getGcpProjectId(),
             u.getAzureSubscriptionId(),
+            u.getAvatarUrl(),
             u.getCreatedAt(),
             u.getUpdatedAt()
         );
@@ -184,6 +187,14 @@ public class UserResponse {
 
     public void setAzureSubscriptionId(String azureSubscriptionId) {
         this.azureSubscriptionId = azureSubscriptionId;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public java.time.LocalDateTime getCreatedAt() {
