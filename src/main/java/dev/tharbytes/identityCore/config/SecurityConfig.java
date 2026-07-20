@@ -53,15 +53,16 @@ public class SecurityConfig {
     private boolean rememberMeSecureCookie;
 
     public SecurityConfig(AppUserDetailsService userDetailsService,
-                          CustomOAuth2UserService customOAuth2UserService,
-                          CustomOidcUserService customOidcUserService) {
+            CustomOAuth2UserService customOAuth2UserService,
+            CustomOidcUserService customOidcUserService) {
         this.userDetailsService = userDetailsService;
         this.customOAuth2UserService = customOAuth2UserService;
         this.customOidcUserService = customOidcUserService;
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository tokenRepository) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository tokenRepository)
+            throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 // ── CSRF ──────────────────────────────────────────────────────────
@@ -74,17 +75,15 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/login",
                                 "/register",
-                                "/verify-otp/resend"
-                        )
-                )
+                                "/verify-otp/resend"))
                 .addFilterAfter(new org.springframework.web.filter.OncePerRequestFilter() {
                     @Override
-                    protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request, 
-                                                    jakarta.servlet.http.HttpServletResponse response, 
-                                                    jakarta.servlet.FilterChain filterChain)
+                    protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request,
+                            jakarta.servlet.http.HttpServletResponse response,
+                            jakarta.servlet.FilterChain filterChain)
                             throws jakarta.servlet.ServletException, java.io.IOException {
-                        org.springframework.security.web.csrf.CsrfToken csrfToken = 
-                            (org.springframework.security.web.csrf.CsrfToken) request.getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
+                        org.springframework.security.web.csrf.CsrfToken csrfToken = (org.springframework.security.web.csrf.CsrfToken) request
+                                .getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
                         if (csrfToken != null) {
                             csrfToken.getToken();
                         }
@@ -107,8 +106,9 @@ public class SecurityConfig {
                                 "/user/terms", "/user/privacy", "/user/cookie-policy",
                                 "/user/forgot-password", "/user/reset-password", "/user/reset-password/verify",
                                 "/css/**", "/js/**", "/images/**", "/assets/**",
-                                "/h2-console/**", "/error"
-                        ).permitAll()
+                                "/h2-console/**", "/error",
+                                "/.well-known/**")
+                        .permitAll()
 
                         // Permission-gated pages
                         .requestMatchers("/users", "/manage-user").hasAuthority("USER_READ")
@@ -120,8 +120,7 @@ public class SecurityConfig {
                         .requestMatchers("/user/**").authenticated()
 
                         // Everything else needs authentication
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
 
                 // ── Form login ────────────────────────────────────────────────────
                 .formLogin(form -> form
@@ -130,51 +129,48 @@ public class SecurityConfig {
                         .usernameParameter("email")
                         .passwordParameter("password")
                         .successHandler((request, response, authentication) -> {
-                            if (request.getHeader("Accept") != null && request.getHeader("Accept").contains("application/json")) {
+                            if (request.getHeader("Accept") != null
+                                    && request.getHeader("Accept").contains("application/json")) {
                                 response.setContentType("application/json;charset=UTF-8");
                                 response.getWriter().write("{\"success\":true,\"message\":\"Login successful\"}");
                             } else {
-                                response.sendRedirect("/welcome");
+                                org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler defaultHandler = new org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler();
+                                // defaultHandler.setDefaultTargetUrl("/welcome");
+                                defaultHandler.onAuthenticationSuccess(request, response, authentication);
                             }
                         })
                         .failureHandler((request, response, exception) -> {
                             String errorMsg = "Invalid email or password";
-                            if (exception != null && exception.getMessage() != null && exception.getMessage().contains("connected with")) {
+                            if (exception != null && exception.getMessage() != null
+                                    && exception.getMessage().contains("connected with")) {
                                 errorMsg = exception.getMessage();
                             }
-                            if (request.getHeader("Accept") != null && request.getHeader("Accept").contains("application/json")) {
+                            if (request.getHeader("Accept") != null
+                                    && request.getHeader("Accept").contains("application/json")) {
                                 response.setStatus(401);
                                 response.setContentType("application/json;charset=UTF-8");
                                 response.getWriter().write("{\"success\":false,\"message\":\"" + errorMsg + "\"}");
                             } else {
-                                String redirectUrl = "/?error=" + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
+                                String redirectUrl = "/?error="
+                                        + java.net.URLEncoder.encode(errorMsg, java.nio.charset.StandardCharsets.UTF_8);
                                 response.sendRedirect(redirectUrl);
                             }
                         })
-                        .permitAll()
-                )
+                        .permitAll())
 
                 // ── OAuth2 login (Google / GitHub) ───────────────────────────────
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
-                                .oidcUserService(customOidcUserService)
-                        )
-                        .defaultSuccessUrl("/welcome", true)
+                                .oidcUserService(customOidcUserService))
+                        // .defaultSuccessUrl("/welcome", false)
                         .failureUrl("/login?error=OAuth+authentication+failed")
-                        .permitAll()
-                )
+                        .permitAll())
 
                 // ── Remember Me (persistent token — revocable per device) ────────
                 .rememberMe(rememberMe -> rememberMe
-                        .key(rememberMeKey)
-                        .tokenRepository(tokenRepository)
-                        .tokenValiditySeconds(rememberMeValiditySeconds)
-                        .userDetailsService(userDetailsService)
-                        .rememberMeParameter("remember-me")     // matches the login form checkbox name
-                        .rememberMeCookieName("ICORE_REMEMBER_ME")
-                        .useSecureCookie(rememberMeSecureCookie) // true in prod (HTTPS), false for local HTTP dev
+                        .rememberMeServices(rememberMeServices(tokenRepository))
                 )
 
                 // ── Logout ────────────────────────────────────────────────────────
@@ -184,14 +180,12 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID", "ICORE_REMEMBER_ME")
                         .clearAuthentication(true)
-                        .permitAll()
-                )
+                        .permitAll())
 
                 // ── Session management ────────────────────────────────────────────
                 .sessionManagement(session -> session
                         .maximumSessions(1)
-                        .expiredUrl("/login?error=Session+expired.+Please+login+again.")
-                );
+                        .expiredUrl("/login?error=Session+expired.+Please+login+again."));
 
         return http.build();
     }
@@ -202,6 +196,29 @@ public class SecurityConfig {
      * session without invalidating everyone else's — the standard enterprise
      * approach. Requires the `persistent_logins` table (see persistent_logins.sql).
      */
+    @Bean
+    public org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices rememberMeServices(PersistentTokenRepository tokenRepository) {
+        org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices services = 
+            new org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices(
+                rememberMeKey, userDetailsService, tokenRepository) {
+            @Override
+            protected org.springframework.security.core.userdetails.UserDetails processAutoLoginCookie(
+                    String[] cookieTokens, jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) {
+                try {
+                    return super.processAutoLoginCookie(cookieTokens, request, response);
+                } catch (org.springframework.security.web.authentication.rememberme.CookieTheftException e) {
+                    cancelCookie(request, response);
+                    return null;
+                }
+            }
+        };
+        services.setCookieName("ICORE_REMEMBER_ME");
+        services.setParameter("remember-me");
+        services.setTokenValiditySeconds(rememberMeValiditySeconds);
+        services.setUseSecureCookie(rememberMeSecureCookie);
+        return services;
+    }
+
     @Bean
     public PersistentTokenRepository persistentTokenRepository(DataSource dataSource) {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
@@ -240,8 +257,7 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(
-                "/css/**", "/js/**", "/images/**", "/assets/**", "/favicon.ico"
-        );
+                "/css/**", "/js/**", "/images/**", "/assets/**", "/favicon.ico");
     }
 
     @Bean
