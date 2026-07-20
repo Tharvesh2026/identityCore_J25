@@ -2,6 +2,21 @@
 
 All notable changes to the **i.Core** project will be documented in this file.
 
+## [2.3] — OAuth2 Authorization Server & OIDC Integration
+
+### Added
+- Configured `identityCore` as an OIDC / OAuth2 Authorization Server using Spring Authorization Server (`adcb008`)
+- Added OIDC UserInfo endpoint (`/userinfo`) with JWT Bearer Resource Server authentication (`adcb008`)
+- Implemented OIDC `userInfoMapper` returning `sub`, `email`, `name`, `preferred_username`, `permissions`, and `role` (`adcb008`)
+- Added JWT `tokenCustomizer` populating stable `sub` ID and enterprise authorities (`adcb008`)
+
+### Fixed
+- Handled `CookieTheftException` in custom `RememberMeServices` by clearing stale cookies without server crashes (`adcb008`)
+- Resolved duplicate client identifier lookup exception in `RegisteredClientRepository` (`adcb008`)
+- Cleaned up security chain protocol endpoint ownership between `@Order(1)` and `@Order(2)` (`adcb008`)
+
+---
+
 ## [2.2] — e999550
 *Merged from `REST_API` and `fix/forgot-password` into `main`*
 
