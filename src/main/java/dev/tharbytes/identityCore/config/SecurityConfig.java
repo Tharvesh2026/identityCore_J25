@@ -113,11 +113,13 @@ public class SecurityConfig {
                         // Permission-gated pages
                         .requestMatchers("/users", "/manage-user").hasAuthority("USER_READ")
                         .requestMatchers("/roles", "/manage-role").hasAuthority("ROLE_READ")
+                        .requestMatchers("/clients/**", "/manage-clients").hasAnyAuthority("ROLE_READ", "CLIENT_MANAGE")
                         .requestMatchers("/logs", "/log").hasAuthority("LOG_VIEW")
 
                         // API endpoints — checked in controller via UserService.hasPermission()
                         .requestMatchers("/auth/**").authenticated()
                         .requestMatchers("/user/**").authenticated()
+                        .requestMatchers("/api/v1/oauth2/clients/**").hasAnyAuthority("ROLE_READ", "CLIENT_MANAGE")
 
                         // Everything else needs authentication
                         .anyRequest().authenticated())

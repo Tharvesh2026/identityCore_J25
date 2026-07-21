@@ -65,6 +65,13 @@
         <i class="ti ti-shield-lock"></i> Roles
     </a>
 
+    <a sec:authorize="hasAuthority('ROLE_READ') or hasAuthority('CLIENT_MANAGE')"
+       th:href="@{/clients}"
+       th:classappend="${currentUri == '/clients'} ? 'active'"
+       class="ic-nav-item">
+        <i class="ti ti-apps"></i> OAuth2 Clients
+    </a>
+
     <!-- System nav -->
     <div class="ic-nav-section">System</div>
 
