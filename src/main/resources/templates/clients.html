@@ -146,7 +146,7 @@
                             <td>
                                 <span class="ic-tag" th:classappend="${c.requirePkce} ? 'tag-active' : 'tag-inactive'" th:text="${c.requirePkce ? 'ENABLED' : 'DISABLED'}">ENABLED</span>
                             </td>
-                            <td style="font-size:12px; color:var(--text-3);" th:text="${c.clientIdIssuedAt != null ? #instants.format(c.clientIdIssuedAt, 'yyyy-MM-dd HH:mm') : 'N/A'}">Date</td>
+                            <td style="font-size:12px; color:var(--text-3);" th:text="${c.clientIdIssuedAt != null ? c.clientIdIssuedAt : 'N/A'}">Date</td>
                             <td>
                                 <div style="display:flex; gap:6px;">
                                     <form th:action="@{/clients/{id}/regenerate-secret(id=${c.clientId})}" method="post" style="margin:0;">
