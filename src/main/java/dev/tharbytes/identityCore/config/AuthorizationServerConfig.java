@@ -94,15 +94,15 @@ public class AuthorizationServerConfig {
                         .collect(Collectors.toList());
 
                 builder.subject(user.getId().toString())
-                       .email(user.getMailId())
-                       .name(user.getName())
-                       .preferredUsername(user.getUsername() != null ? user.getUsername() : user.getMailId())
-                       .claim("permissions", permissions)
-                       .claim("role", user.getRoleName());
+                        .email(user.getMailId())
+                        .name(user.getName())
+                        .preferredUsername(user.getUsername() != null ? user.getUsername() : user.getMailId())
+                        .claim("permissions", permissions)
+                        .claim("role", user.getRoleName());
             }, () -> {
                 builder.subject(principalName)
-                       .email(principalName)
-                       .preferredUsername(principalName);
+                        .email(principalName)
+                        .preferredUsername(principalName);
             });
 
             return builder.build();
@@ -111,20 +111,18 @@ public class AuthorizationServerConfig {
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(oidc -> oidc
                         .userInfoEndpoint(userInfo -> userInfo
-                                .userInfoMapper(userInfoMapper)
-                        )
-                );
+                                .userInfoMapper(userInfoMapper)));
+
+        MediaTypeRequestMatcher htmlMatcher = new MediaTypeRequestMatcher(MediaType.TEXT_HTML);
+        htmlMatcher.setUseEquals(true);
 
         http
-            .exceptionHandling(exceptions -> exceptions
-                .defaultAuthenticationEntryPointFor(
-                    new LoginUrlAuthenticationEntryPoint("/login"),
-                    new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-                )
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(Customizer.withDefaults())
-            );
+                .exceptionHandling(exceptions -> exceptions
+                        .defaultAuthenticationEntryPointFor(
+                                new LoginUrlAuthenticationEntryPoint("/login"),
+                                htmlMatcher))
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(Customizer.withDefaults()));
 
         return http.build();
     }
@@ -214,7 +212,8 @@ public class AuthorizationServerConfig {
                 context.getClaims().claim("role", user.getRoleName());
                 context.getClaims().claim("email", user.getMailId());
                 context.getClaims().claim("name", user.getName());
-                context.getClaims().claim("preferred_username", user.getUsername() != null ? user.getUsername() : user.getMailId());
+                context.getClaims().claim("preferred_username",
+                        user.getUsername() != null ? user.getUsername() : user.getMailId());
             });
         };
     }
